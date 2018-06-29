@@ -14,6 +14,8 @@ func New(method string, arguments []interface{}, config cfg.Config) (Command, er
 	switch method {
 	case "create_stemcell":
 		return NewCreateStemcell(arguments, config)
+	case "info":
+		return NewInfo()
 	default:
 		return nil, errors.New("")
 	}

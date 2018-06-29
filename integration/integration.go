@@ -89,4 +89,27 @@ var _ = Describe("bosh-containerd-cpi", func() {
             Expect(string(contents)).To(Equal("some-content"))
 		})
 	})
+
+    Describe("info", func() {
+        It("returns info", func() {
+            var args = `{
+              "method": "info",
+              "arguments": [],
+              "context": {
+                "director_uuid": "e8c76164-7eda-405a-475a-cec0e51ee972"
+              }
+             }`
+
+            command := exec.Command(binaryPath, configPath)
+            command.Stdin = strings.NewReader(args)
+            session, err := gexec.Start(command, GinkgoWriter, GinkgoWriter)
+            Expect(err).NotTo(HaveOccurred())
+            Eventually(session).Should(gexec.Exit(0))
+
+            out := string(session.Out.Contents())
+            Expect(out).To(MatchJSON(
+                `{"result":{"stemcell_formats":["warden-tar","general-tar"]},"error":null,"log":""}`,
+            ))
+        })
+    })
 })
