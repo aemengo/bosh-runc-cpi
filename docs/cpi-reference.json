@@ -1,0 +1,196 @@
+[
+  {
+    "method": "info",
+    "arguments": [],
+    "context": {
+      "director_uuid": "eb896bb7-d54b-4e5b-97cd-dc4e1ab1204f",
+      "request_id": "cpi-158795"
+    }
+  },
+  {
+    "method": "create_vm",
+    "arguments": [
+      "4a3aec6f-52ea-4c31-b0c4-a2f8a7002857",
+      "5bd9284c-bb5d-4a4a-6564-1b5ecada5417",
+      {},
+      {
+        "default": {
+          "type": "manual",
+          "ip": "10.244.0.133",
+          "netmask": "255.255.240.0",
+          "cloud_properties": {
+            "name": "random"
+          },
+          "default": [
+            "dns",
+            "gateway"
+          ],
+          "gateway": "10.244.0.1"
+        }
+      },
+      [],
+      {
+        "bosh": {
+          "blobstores": [
+            {
+              "options": {
+                "endpoint": "http://192.168.50.6:25250",
+                "password": "q95j7e9qt6ik28v2dohw",
+                "tls": {
+                  "cert": {
+                    "ca": "-----BEGIN CERTIFICATE-----\nMIIDUzCCAjugAwIBAgIQBW2A96yGCItsOxKiRBO+wzANBgkqhkiG9w0BAQsFADBT\nMQwwCgYDVQQGEwNVU0ExFjAUBgNVBAoTDUNsb3VkIEZvdW5kcnkxKzApBgNVBAMT\nImRlZmF1bHQuYmxvYnN0b3JlLWNhLmJvc2gtaW50ZXJuYWwwHhcNMTgwNjI0MjEz\nOTM4WhcNMTkwNjI0MjEzOTM4WjBTMQwwCgYDVQQGEwNVU0ExFjAUBgNVBAoTDUNs\nb3VkIEZvdW5kcnkxKzApBgNVBAMTImRlZmF1bHQuYmxvYnN0b3JlLWNhLmJvc2gt\naW50ZXJuYWwwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC3gRsYF1qZ\nlkrvltnvlwOXnFKZtfLT8HbTTcSUive4B56hvpBrffRol074AOFX0yvrJJDJ545k\nWTOBofW9SiYOzElpIBeW5qZDs6rP9oESbn3eYfiZRa0Fus3TSrf9SdcVD31afWVs\nQ5l/VKqebyd4xAUCtWANzYrOh+pHL7uP+m68Zxqd6zDr9R+tWAqTWTtWb/xm8Nil\n6prX1H3ZFq3l9GN0fDljdtUPXKQrU3dSqUteFId4R2we5B7mbuCb1Dwr1iWZEF3M\ntQm5QtX2ixwmAuKe18xHaARO6D/lJmYvkVg1w6HSJ5mEJTWFkR1hZBamrfsPJmQR\nSjbstEpzmnhNAgMBAAGjIzAhMA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8EBTAD\nAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQCBZ5F2agPRq1ACIvFde9t1KJS/ZHKj2cL8\nD+nycTMV9WrgQT78GuisA9Xa8ND2BSxiAFWP+9x8BDldXPv4cLQJKPyLFWAEIu5Z\nbhodJOiupZ4/RqTW4IN/z53mP5E4cRe97TLdAm9PtvNjmz5BdfxQ8WqpH9QkJ5d3\nr18ewTNs1jj8fvE1KabhTX78oOXUPxur26HhDxBYxqkclXIz+S8qIPhs7k+r9a/O\n4F35O0ACSRNazFT6TZNW6DmRbyfuvLKx7ORdbY79K+hm4Z26EN90eYld6oQM0RMo\nra98NqPk6ngNTUBhkVne8gwmZqm0ifYfBST3sctwuzOI73Cp1rAl\n-----END CERTIFICATE-----\n"
+                  }
+                },
+                "user": "agent"
+              },
+              "provider": "dav"
+            }
+          ],
+          "mbus": {
+            "cert": {
+              "ca": "-----BEGIN CERTIFICATE-----\nMIIDSjCCAjKgAwIBAgIRAPD8XzSlWDuyAmsUqWVgSXEwDQYJKoZIhvcNAQELBQAw\nTjEMMAoGA1UEBhMDVVNBMRYwFAYDVQQKEw1DbG91ZCBGb3VuZHJ5MSYwJAYDVQQD\nEx1kZWZhdWx0Lm5hdHMtY2EuYm9zaC1pbnRlcm5hbDAeFw0xODA2MjQyMTM5MzZa\nFw0xOTA2MjQyMTM5MzZaME4xDDAKBgNVBAYTA1VTQTEWMBQGA1UEChMNQ2xvdWQg\nRm91bmRyeTEmMCQGA1UEAxMdZGVmYXVsdC5uYXRzLWNhLmJvc2gtaW50ZXJuYWww\nggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC9ECbqcyTfEfw12vyOeF9e\nP6gOqht0nc/DEDRqhaW19Gg0g12q69u5VT3oj53IGC47UmNmhskIgWOAV+kWTcSM\ngavUcorHmsB2c+EeIFaRIR0KUPDXxLdEXw7OTQ5IrYawAzSNJ9Ht6bjx1xG4KHH7\nNaSBFXOQZZlRFAXe74VolRH/LyVW5dvwJjMu4cUzPskjza07RpNKd9G8JeBK/2Tv\nvaD+iuFdT7mXg/OMOM+5quXNpKW1b+Od8Cii3fPWN4rXe8rhjmjMGV+hTXT6M30O\nHIpRZK0z8u8Sc2NjSHc4WTJvKJiXgMXQEuJIrzVHLJBVIwzfqbfaZWbAb+KFBl81\nAgMBAAGjIzAhMA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8EBTADAQH/MA0GCSqG\nSIb3DQEBCwUAA4IBAQBzlce5dcaOLXE/Q5EcNSHw6o3CMSpbuv8mndgMAqFX9NT6\nEeumYyW2gTjzb8WXofyBlywBB6+11LRJGDH9JKq1mohxnJ5xfi28caVKjx9XhqCn\neZvjfHfzgoC0xIybdKS9J9JwA3QXlNabghCeMHDYxzX/EtpJbrVhdS2pRpT3mrA9\n+TGQEmOVq0RsOloTdaQGFOO/f+XUQb2cWbKln+LcTQpWeyprh6tW+Mg8BNjUkHr+\nyKY+Xc6TfyoO2/xEetpqcmuQuLwLYzjhC0x8OoQP4suCNsRlXe54iJpOnWPONl5U\nnCW5ROnhwyQVkpesczCCY4e4TPveUvPiaYS1Tl/O\n-----END CERTIFICATE-----\n\n",
+              "certificate": "-----BEGIN CERTIFICATE-----\nMIID+TCCAuGgAwIBAgIQTIwrZQYP5jguEoPePHZHSzANBgkqhkiG9w0BAQsFADBO\nMQwwCgYDVQQGEwNVU0ExFjAUBgNVBAoTDUNsb3VkIEZvdW5kcnkxJjAkBgNVBAMT\nHWRlZmF1bHQubmF0cy1jYS5ib3NoLWludGVybmFsMB4XDTE4MDYyNDIyNDUwMVoX\nDTIwMDYyMzIyNDUwMVowaTEMMAoGA1UEBhMDVVNBMRYwFAYDVQQKDA1DbG91ZCBG\nb3VuZHJ5MUEwPwYDVQQDDDg0YTNhZWM2Zi01MmVhLTRjMzEtYjBjNC1hMmY4YTcw\nMDI4NTcuYWdlbnQuYm9zaC1pbnRlcm5hbDCCAaIwDQYJKoZIhvcNAQEBBQADggGP\nADCCAYoCggGBAPA1FA4pvPol7DjqRfdkcZ61uKNpIGBKyTkRfMYDTW8DO/vViCYO\nmBqvEaWQ/bdy4Ox+/spjM5gh1u6SdGpFx2wfWVZALDKgFa/Kox03O3Nqu0EoqCq1\n73E2aAqfAvf+pxu9IlHGbSQUO99qD6HBaESUE6KwL6HXenNga94adEdCAwE0rAc8\no6zfORQXmfcKAgLm3uyGAahgY/scqm5gn4dqUsRNRCGU6wEOubyUKjSThk1xGi1O\ndqXwcTrsdqUzjo6Jk+tJA4X3QGtgL8AhI78DSzoD8KNo3FNux/hZN2P4aFNd98Ek\nJlxtGyah04HBnq5VkUdyzMogHFuLStCRRO50FEbpCxqmWks1EmN4Ye+ZF7oIZX6u\n975H9WS9obRsjctJZyJcVGuXwx0stc4wnB1UIp/PXvloGq49hlEKGMqkqOBW51km\nQhhqQr5rO1/FQyYOS2ZYt+hy1+YmssyJY0eWucaVj49sd9k/BxUeUGORm3/56cxx\nWCAmJfiZIXeoWQIDAQABozgwNjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIw\nADAWBgNVHSUBAf8EDDAKBggrBgEFBQcDAjANBgkqhkiG9w0BAQsFAAOCAQEAa5Ln\nMkpALmf78zrYz0abtCgpf6wg4sphQhdC293pLohqs7hq98r9OV/26VMgsrj4pRFa\nkBw7XA1UhNgho7a1D5ZHSTJ8U3FVt5fuGfD8eWfnZje228RNbsaPCqC5E9oQx8CS\n9ph19SaTOYpq0QCPxGwRYqxIq/wLZopfMoqxazqzfwRlY2ZbKUq/BrzROKh74nd7\nLu21DOm7OUXEjYtyPV7ZchAvoM6fQRVlHKrEL4KgeivA3ipnKAZhJFu3NG4TqT3A\n25HzwU/1P9LZcaAA+C+7nWm52dWASX0QDv7HNLevYAlKWzyUMhsbuMByA3jflOSv\nE4k2I7t6dT6Pj5yefA==\n-----END CERTIFICATE-----\n",
+              "private_key": "-----BEGIN RSA PRIVATE KEY-----\n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\n-----END RSA PRIVATE KEY-----\n"
+            }
+          },
+          "password": "$6$70b90071229d675e$l7zQadpOmeH7mVQ0I3UH/R/9MJu5DrdGpsXa1k3107YJXxKo3IeSBMuCG3Ibj/L.vaQKkvc6MNf0d7CQ1B80u/",
+          "group": "bosh-lite-zookeeper-compilation-35a43e79-e770-41fd-81d5-0816306db687",
+          "groups": [
+            "bosh-lite",
+            "zookeeper",
+            "compilation-35a43e79-e770-41fd-81d5-0816306db687",
+            "bosh-lite-zookeeper",
+            "zookeeper-compilation-35a43e79-e770-41fd-81d5-0816306db687",
+            "bosh-lite-zookeeper-compilation-35a43e79-e770-41fd-81d5-0816306db687"
+          ]
+        }
+      }
+    ],
+    "context": {
+      "director_uuid": "eb896bb7-d54b-4e5b-97cd-dc4e1ab1204f",
+      "request_id": "cpi-636649"
+    },
+    "api_version": 1
+  },
+  {
+    "method": "set_vm_metadata",
+    "arguments": [
+      "23b20ab4-7d08-4cb6-5136-a31486af2139",
+      {
+        "director": "bosh-lite",
+        "deployment": "zookeeper",
+        "id": "fef527e2-cbd8-4d07-aa8a-39aea1fbb420",
+        "job": "compilation-35a43e79-e770-41fd-81d5-0816306db687",
+        "instance_group": "compilation-35a43e79-e770-41fd-81d5-0816306db687",
+        "index": "0",
+        "name": "compilation-35a43e79-e770-41fd-81d5-0816306db687/fef527e2-cbd8-4d07-aa8a-39aea1fbb420",
+        "created_at": "2018-06-24T22:45:44Z"
+      }
+    ],
+    "context": {
+      "director_uuid": "eb896bb7-d54b-4e5b-97cd-dc4e1ab1204f",
+      "request_id": "cpi-685135"
+    },
+    "api_version": 1
+  },
+  {
+    "method": "delete_vm",
+    "arguments": [
+      "1c6dac4a-bbec-4079-7688-f4afc5ebefdb"
+    ],
+    "context": {
+      "director_uuid": "eb896bb7-d54b-4e5b-97cd-dc4e1ab1204f",
+      "request_id": "cpi-935396"
+    },
+    "api_version": 1
+  },
+  {
+    "method": "create_disk",
+    "arguments": [
+      10240,
+      {},
+      "b1056784-84f7-4cc7-59a2-01fa17d1d1c4"
+    ],
+    "context": {
+      "director_uuid": "eb896bb7-d54b-4e5b-97cd-dc4e1ab1204f",
+      "request_id": "cpi-843716"
+    },
+    "api_version": 1
+  },
+  {
+    "method": "attach_disk",
+    "arguments": [
+      "b1056784-84f7-4cc7-59a2-01fa17d1d1c4",
+      "66b3efb9-bda0-426a-6794-4be73607a3b2"
+    ],
+    "context": {
+      "director_uuid": "eb896bb7-d54b-4e5b-97cd-dc4e1ab1204f",
+      "request_id": "cpi-738204"
+    },
+    "api_version": 1
+  },
+  {
+    "method": "set_disk_metadata",
+    "arguments": [
+      "32412aa4-ffef-49fc-4b74-55c9401108c1",
+      {
+        "director": "bosh-lite",
+        "deployment": "zookeeper",
+        "instance_id": "0e4aa7b0-45a4-45e7-a0b9-2f9a23b2782b",
+        "instance_index": "2",
+        "instance_group": "zookeeper",
+        "attached_at": "2018-06-24T22:49:31Z"
+      }
+    ],
+    "context": {
+      "director_uuid": "eb896bb7-d54b-4e5b-97cd-dc4e1ab1204f",
+      "request_id": "cpi-728086"
+    },
+    "api_version": 1
+  },
+  {
+    "method": "detach_disk",
+    "arguments": [
+      "b1056784-84f7-4cc7-59a2-01fa17d1d1c4",
+      "66b3efb9-bda0-426a-6794-4be73607a3b2"
+    ],
+    "context": {
+      "director_uuid": "eb896bb7-d54b-4e5b-97cd-dc4e1ab1204f",
+      "request_id": "cpi-495684"
+    },
+    "api_version": 1
+  },
+  {
+    "method": "delete_vm",
+    "arguments": [
+      "b1056784-84f7-4cc7-59a2-01fa17d1d1c4"
+    ],
+    "context": {
+      "director_uuid": "eb896bb7-d54b-4e5b-97cd-dc4e1ab1204f",
+      "request_id": "cpi-163331"
+    },
+    "api_version": 1
+  },
+  {
+    "method": "has_disk",
+    "arguments": [
+      "3b4c453b-0334-44a8-7ad1-bf80519e2a40"
+    ],
+    "context": {
+      "director_uuid": "eb896bb7-d54b-4e5b-97cd-dc4e1ab1204f",
+      "request_id": "cpi-950712"
+    },
+    "api_version": 1
+  },
+  {
+    "method": "delete_stemcell",
+    "arguments": [
+      "5bd9284c-bb5d-4a4a-6564-1b5ecada5417"
+    ],
+    "context": {
+      "director_uuid": "eb896bb7-d54b-4e5b-97cd-dc4e1ab1204f",
+      "request_id": "cpi-170608"
+    },
+    "api_version": 1
+  }
+]

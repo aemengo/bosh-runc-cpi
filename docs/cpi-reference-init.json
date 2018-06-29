@@ -1,0 +1,165 @@
+[
+  {
+    "method": "create_stemcell",
+    "arguments": [
+      "/Users/aemengo/.bosh/installations/eaf236da-f11a-452f-4679-948a685b3626/tmp/stemcell-manager548292519/image",
+      {
+        "architecture": "x86_64",
+        "container_format": "bare",
+        "disk": 3072,
+        "disk_format": "ovf",
+        "hypervisor": "esxi",
+        "infrastructure": "vsphere",
+        "name": "bosh-vsphere-esxi-ubuntu-trusty-go_agent",
+        "os_distro": "ubuntu",
+        "os_type": "linux",
+        "root_device_name": "/dev/sda1",
+        "version": "3586.24"
+      }
+    ],
+    "context": {
+      "director_uuid": "e8c76164-7eda-405a-475a-cec0e51ee972"
+    }
+  },
+  {
+    "method": "create_vm",
+    "arguments": [
+      "d6d4b4f8-b038-491d-4eac-507f35089f4c",
+      "sc-ba50c63e-92f5-44f5-49d0-93e2b63459ee",
+      {
+        "cpus": 2,
+        "ephemeral_disk": 16384,
+        "memory": 4096
+      },
+      {
+        "default": {
+          "cloud_properties": {},
+          "default": [
+            "dns",
+            "gateway"
+          ],
+          "dns": [
+            "8.8.8.8"
+          ],
+          "gateway": "192.168.50.1",
+          "ip": "192.168.50.6",
+          "netmask": "255.255.255.0",
+          "type": "manual"
+        },
+        "outbound": {
+          "cloud_properties": {
+            "name": "NatNetwork",
+            "type": "natnetwork"
+          },
+          "type": "dynamic"
+        }
+      },
+      [],
+      {
+        "bosh": {
+          "mbus": {
+            "cert": {
+              "ca": "-----BEGIN CERTIFICATE-----\nMIIDEzCCAfugAwIBAgIQVOLy3G/JYmaEVRWBa0N7BDANBgkqhkiG9w0BAQsFADAz\nMQwwCgYDVQQGEwNVU0ExFjAUBgNVBAoTDUNsb3VkIEZvdW5kcnkxCzAJBgNVBAMT\nAmNhMB4XDTE4MDYyNDIxMzkzNloXDTE5MDYyNDIxMzkzNlowMzEMMAoGA1UEBhMD\nVVNBMRYwFAYDVQQKEw1DbG91ZCBGb3VuZHJ5MQswCQYDVQQDEwJjYTCCASIwDQYJ\nKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMU4316/4A60ptiCrHi3y2jKI9Bu7F5S\nPXTMR3Y4yzXg6T6uO+CeFYx5neDa0lcI+PkxjQdlaLNpFrOybROcokFCF0SMFMtA\nJxleoFosb6b27Qe18MMO2htecitAYowywmCnAnhZvcyeQGYjm/K77cYFVxb4SihZ\nQiecGAUhS3ybrQ7Cr7k5SiwKG7MA+pUdODEh1OjC3/M8sCiemkuv0oH7fKndq/tf\nXGEWwz983KTcPbj2k80dkfNUWzc8cWad6fVThm3ZDkeQhgUGAh4Bt/aIoIWnRy/w\n/EUCcF5ERwUMasJfbU8//Upw9V75NX902mLbfQlnkkvWHthMx5Eg0gUCAwEAAaMj\nMCEwDgYDVR0PAQH/BAQDAgEGMA8GA1UdEwEB/wQFMAMBAf8wDQYJKoZIhvcNAQEL\nBQADggEBAHRgYXSTMkqg6gE3XfAKSvCxOzv05HADZez67XzSIRS0tJtLWkXR3Vwn\na4p1LKYiEsHNeXtCkNW/T5Sk0Sw+LBgv0Lq81Ff66xnjF6dYSu9eExyrEWDwzHvg\njwUGTG8v1RvmFlB1fXa5q7XG/HNwsIXnK6qKUrf5vXDLqT30aGeR25OsbiziUTYe\nan/PbPyR0qw3l3shRm95Mn6odUmJwr1hZzd3PYLoAYRuS0sbdTCAeppLQDh//Y+t\niEsJv72iZGCG99JuwmhZhcbJZbbou1e+VdNJoeQGG3JEA720SF2Ve4TW2hwR3GL+\ntERAmfabDhpgH1CPW83/lrOGNcMhqDk=\n-----END CERTIFICATE-----\n",
+              "certificate": "-----BEGIN CERTIFICATE-----\nMIIDQDCCAiigAwIBAgIQZbys6jiKsuVzzjOoppr1VzANBgkqhkiG9w0BAQsFADAz\nMQwwCgYDVQQGEwNVU0ExFjAUBgNVBAoTDUNsb3VkIEZvdW5kcnkxCzAJBgNVBAMT\nAmNhMB4XDTE4MDYyNDIxMzkzNloXDTE5MDYyNDIxMzkzNlowPTEMMAoGA1UEBhMD\nVVNBMRYwFAYDVQQKEw1DbG91ZCBGb3VuZHJ5MRUwEwYDVQQDEwwxOTIuMTY4LjUw\nLjYwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCp1jbzbofiXu3G+LhN\nZrSgBpEgEXdPIkDn/TE8eusEBf3IuFPcHaBtwPzSnzLAuETK/KQHo6V+rvob+m3o\nD2Fd84anBE/3dvK1iQp1njXy61vhfVKYh2DUhwbyNVVyN61qwaUNp8JGpLisuYPA\nZijBmFIs4bq11keL/XUKw11g3EkL6Cb2HQ695pN4+HJCFni94fqPocTyMJdGhJGo\n44CB8QuSI+oEiOqB/JlABYSLTKGpOtV91U+9j5fEuXpqdi/YPtw7vepb2vtAFuWm\n/XNm/VaIl/4AOLe8NwbysZ34BRiMmyMS6GHXQ46mO6vZZUzW55NuqKeRCjhEO9PT\nNwAPAgMBAAGjRjBEMA4GA1UdDwEB/wQEAwIFoDATBgNVHSUEDDAKBggrBgEFBQcD\nATAMBgNVHRMBAf8EAjAAMA8GA1UdEQQIMAaHBMCoMgYwDQYJKoZIhvcNAQELBQAD\nggEBACparcYfJxtNKwUFhKTvGiZylErKTWxBa3SBjGHT1F9eALsv3d6nWBgjS17p\n4WfB/I07mchHwPPp7pakO/z9EHW/RjaXutKuE8iS4q9OU5w5F5ZdxCe/I6FDS06e\no+IgYg/Oyo85P6qpixNQj9GQpalzP+3XoTQB01HU/DgJY6BzoD+gx2UWspqZE/K9\nKH29a+bJv+4kuqrfbBQmxJSHkSL6FvpNt0Jvcb4hlR5/WCTBy9nWHNzNkVcCoRDF\na4GUesoA+cRCdMayhiN+12s1SPYH11lsx83oJchSKNMBcgqB4FY6C8Q7KmEBbre3\na13EL1OPQUcPOcfKS+qWl4KG9PI=\n-----END CERTIFICATE-----\n",
+              "private_key": "-----BEGIN RSA PRIVATE KEY-----\nMIIEpQIBAAKCAQEAqdY2826H4l7txvi4TWa0oAaRIBF3TyJA5/0xPHrrBAX9yLhT\n3B2gbcD80p8ywLhEyvykB6Olfq76G/pt6A9hXfOGpwRP93bytYkKdZ418utb4X1S\nmIdg1IcG8jVVcjetasGlDafCRqS4rLmDwGYowZhSLOG6tdZHi/11CsNdYNxJC+gm\n9h0OveaTePhyQhZ4veH6j6HE8jCXRoSRqOOAgfELkiPqBIjqgfyZQAWEi0yhqTrV\nfdVPvY+XxLl6anYv2D7cO73qW9r7QBblpv1zZv1WiJf+ADi3vDcG8rGd+AUYjJsj\nEuhh10OOpjur2WVM1ueTbqinkQo4RDvT0zcADwIDAQABAoIBAQCkBizgAbnemIvQ\nBFoK9swvWOhELlop5Q0GgHNS0+ux4Q9vEQZ8qWhNV3tU90eO9OgLmt/YOOYWaWtI\nJh6LZn9Eu3MqTnHkr85MIOQnH/s+dqwwJFbm1Khh2V6OAZBaVQd4+Tgs7f4lN+Tb\ne/eQk5l9D10d14v5Hc/PlaO6F2BRsBsLKNOibQrQerTid+ub0AvqrLGgjcR/YKTD\nio/JwCA4zmU7r1k523tw7eLDsp2huAuBIGKBbqv/fpJU9qZyfUnGfl2oqK71Rw/1\nGqGWyLv0s2sDpu+ufXLRH8AnRxvmNS8ehDVlbvwTzN8QA2tVSMQcmHnRdr3eRn8q\nasSrDlzRAoGBAMgtXlyQpD1Gb1ZBy+UYg+BzoZ9iI5Tz5nsfsXfxjzCAjJnt0SKl\nyEiul8ilQlc0EOk4G1HOly+4GKnkYz6nTcqZYDkkPZyMCS9obCZBLurt8wJSp2es\nvp8gItKhfTSi6/InDaZY81+P7uxlQkc3u9DXzj6IRRHTBYBR/Envx5y9AoGBANky\n2ELU+KGWorJysw8TmoojmTs6cCoh0BNAtG3FJWc1rb2Ewb5DzergwovKhhTzSscW\nNWnXFeIpjF/dFLy/p/5286b8lkBoeKwTSlRKXeVGWP92q4g4hN+xBxpMTj5jsebX\nPdMlJ3BtM1fWXT28UNAHr/WoVY+XH7kAlSSBuqq7AoGBAI25kVV4EtBPTgSEERfi\ng3wmYge2M/sBs+z4Q23oWLi+Ss2w0qD1Pxg2hMBKQO38rvxv/OeunNvsO4oNaTay\nvSDz9mx+fCCaBObLx8ZN4Cn0zliWrG96nnuLBRybuUnLD8IiZEeiMq01+rLj/kjt\n7Muv/xXG5R/5h6uSYEz4txsBAoGAD0PRizDooIKzwJLrHr4j+F10IYOD6pIhy5ia\nlbRrYouVQGKaM0MUr9NIGQcM0WAf+0oGSwAA27pL0Vj6YiGeLvYxPaU28iPlh0J7\n0NzBKKH/E0VF3PcL76TDeQev4BalpDGweKx9zxr9psi8GOCpVVWU+lDwYn0ej6QI\n113+vo0CgYEAp+Mx4esB4jHwkr1no/Hn9RfLIpTgw4lxb32InZcZvSniEjVI+GCQ\na4AuTnlETbkJ00+g2TxhXXlA39Rf9WtoMywt8gc4KtFChjzn5XuucazGwG2NBz+f\nWRZf4xa2Y8BntYcrM3pUEIPrIBPirgd2kJsDzIHz0Zj6hoZMSppAdkc=\n-----END RSA PRIVATE KEY-----\n"
+            }
+          },
+          "password": "*"
+        }
+      }
+    ],
+    "context": {
+      "director_uuid": "e8c76164-7eda-405a-475a-cec0e51ee972"
+    }
+  },
+  {
+    "method": "set_vm_metadata",
+    "arguments": [
+      "vm-870c3e28-a4a7-4d2f-5272-18f2a136cb58",
+      {
+        "created_at": "2018-06-24T17:41:05-04:00",
+        "deployment": "bosh",
+        "director": "bosh-init",
+        "index": "0",
+        "instance_group": "bosh",
+        "job": "bosh"
+      }
+    ],
+    "context": {
+      "director_uuid": "e8c76164-7eda-405a-475a-cec0e51ee972"
+    }
+  },
+  {
+    "method": "create_disk",
+    "arguments": [
+      65536,
+      {},
+      "vm-870c3e28-a4a7-4d2f-5272-18f2a136cb58"
+    ],
+    "context": {
+      "director_uuid": "e8c76164-7eda-405a-475a-cec0e51ee972"
+    }
+  },
+  {
+    "method": "attach_disk",
+    "arguments": [
+      "vm-870c3e28-a4a7-4d2f-5272-18f2a136cb58",
+      "disk-3b5573aa-b83f-4446-5030-f45a103c3bbb"
+    ],
+    "context": {
+      "director_uuid": "e8c76164-7eda-405a-475a-cec0e51ee972"
+    }
+  },
+  {
+    "method": "set_disk_metadata",
+    "arguments": [
+      "disk-3b5573aa-b83f-4446-5030-f45a103c3bbb",
+      {
+        "attached_at": "2018-06-24T17:41:36-04:00",
+        "deployment": "bosh",
+        "director": "bosh-init",
+        "instance_group": "bosh",
+        "instance_index": "0"
+      }
+    ],
+    "context": {
+      "director_uuid": "e8c76164-7eda-405a-475a-cec0e51ee972"
+    }
+  },
+  {
+    "method": "has_vm",
+    "arguments": [
+      "vm-870c3e28-a4a7-4d2f-5272-18f2a136cb58"
+    ],
+    "context": {
+      "director_uuid": "e8c76164-7eda-405a-475a-cec0e51ee972"
+    }
+  },
+  {
+    "method": "delete_vm",
+    "arguments": [
+      "vm-870c3e28-a4a7-4d2f-5272-18f2a136cb58"
+    ],
+    "context": {
+      "director_uuid": "e8c76164-7eda-405a-475a-cec0e51ee972"
+    }
+  },
+  {
+    "method": "delete_disk",
+    "arguments": [
+      "disk-3b5573aa-b83f-4446-5030-f45a103c3bbb"
+    ],
+    "context": {
+      "director_uuid": "e8c76164-7eda-405a-475a-cec0e51ee972"
+    }
+  },
+  {
+    "method": "delete_stemcell",
+    "arguments": [
+      "sc-ba50c63e-92f5-44f5-49d0-93e2b63459ee"
+    ],
+    "context": {
+      "director_uuid": "e8c76164-7eda-405a-475a-cec0e51ee972"
+    }
+  }
+]
