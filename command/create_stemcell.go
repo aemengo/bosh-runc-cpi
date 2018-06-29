@@ -34,12 +34,12 @@ func NewCreateStemcell(arguments []interface{}, config cfg.Config) (*createStemc
 func (c *createStemcell) Run() bosh.Response {
 	r, err := os.Open(c.stemcellSrcPath)
 	if err != nil {
-		return bosh.CPIError("failed to read stemcell to path " + c.stemcellSrcPath)
+		return bosh.CPIError("failed to read stemcell to path " + c.stemcellSrcPath, err)
 	}
 
 	err = os.MkdirAll(c.config.StemcellDir, os.ModePerm)
 	if err != nil {
-		return bosh.CPIError("stemcell_directory could not be made")
+		return bosh.CPIError("stemcell_directory could not be made", err)
 	}
 
 	id := uuid.NewV4().String()
@@ -47,12 +47,12 @@ func (c *createStemcell) Run() bosh.Response {
 
 	f, err := os.Create(destPath)
 	if err != nil {
-		return bosh.CPIError("failed to create stemcell at path " + destPath)
+		return bosh.CPIError("failed to create stemcell at path " + destPath, err)
 	}
 
 	_, err = io.Copy(f, r)
 	if err != nil {
-		return bosh.CPIError(err.Error())
+		return bosh.CPIError("failed to create stemcell", err)
 	}
 
 	return bosh.Response{Result: id}

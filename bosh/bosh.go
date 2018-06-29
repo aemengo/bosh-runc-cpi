@@ -12,7 +12,7 @@ type Error struct {
 	OkToRetry bool   `json:"ok_to_retry"`
 }
 
-func CPIError(message string, logMessage ...string) Response {
+func CPIError(prefix string, err error, logMessage ...string) Response {
 	var log string
 
 	if len(logMessage) > 0 {
@@ -22,7 +22,7 @@ func CPIError(message string, logMessage ...string) Response {
 	return Response{
 		Error: &Error{
 			Type:      "Bosh::Cpi::CPIError",
-			Message:   message,
+			Message:   prefix + ": " + err.Error(),
 			OkToRetry: false,
 		},
 		Log: log,

@@ -112,4 +112,57 @@ var _ = Describe("bosh-containerd-cpi", func() {
             ))
         })
     })
+
+	Describe("delete_stemcell", func() {
+
+        var (
+          stemcellDir string
+          stemcellPath string
+        )
+
+        BeforeEach(func() {
+            var err error
+            stemcellDir, err = ioutil.TempDir("", "bosh-cpi-test-")
+            Expect(err).NotTo(HaveOccurred())
+
+            stemcellPath = filepath.Join(stemcellDir, "abc-123-some-guid")
+
+            ioutil.WriteFile(
+                stemcellPath,
+                []byte("some-content"),
+                0600,
+            )
+
+            config = map[string]interface{}{
+                "stemcell_dir" : stemcellDir,
+            }
+        })
+
+        AfterEach(func() {
+            os.RemoveAll(stemcellDir)
+        })
+
+		It("remove the stemcell from the stemcell dir", func() {
+            var args = `{
+              "method": "delete_stemcell",
+              "arguments": [
+                "abc-123-some-guid"
+              ],
+              "context": {
+                "director_uuid": "e8c76164-7eda-405a-475a-cec0e51ee972"
+              }
+            }`
+
+			command := exec.Command(binaryPath, configPath)
+			command.Stdin = strings.NewReader(args)
+			session, err := gexec.Start(command, GinkgoWriter, GinkgoWriter)
+			Expect(err).NotTo(HaveOccurred())
+			Eventually(session).Should(gexec.Exit(0))
+
+            out := string(session.Out.Contents())
+            Expect(out).To(MatchJSON(`{"result":null,"error":null,"log":""}`))
+            Expect(stemcellPath).NotTo(BeAnExistingFile())
+		})
+	})
+
 })

@@ -16,7 +16,9 @@ func New(method string, arguments []interface{}, config cfg.Config) (Command, er
 		return NewCreateStemcell(arguments, config)
 	case "info":
 		return NewInfo()
+	case "delete_stemcell":
+		return NewDeleteStemcell(arguments, config)
 	default:
-		return nil, errors.New("")
+		return nil, errors.New("method not supported")
 	}
 }
