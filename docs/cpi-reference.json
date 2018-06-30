@@ -161,17 +161,6 @@
     "api_version": 1
   },
   {
-    "method": "delete_vm",
-    "arguments": [
-      "b1056784-84f7-4cc7-59a2-01fa17d1d1c4"
-    ],
-    "context": {
-      "director_uuid": "eb896bb7-d54b-4e5b-97cd-dc4e1ab1204f",
-      "request_id": "cpi-163331"
-    },
-    "api_version": 1
-  },
-  {
     "method": "has_disk",
     "arguments": [
       "3b4c453b-0334-44a8-7ad1-bf80519e2a40"

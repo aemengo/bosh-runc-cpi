@@ -39,7 +39,7 @@ func (c *createStemcell) Run() bosh.Response {
 
 	err = os.MkdirAll(c.config.StemcellDir, os.ModePerm)
 	if err != nil {
-		return bosh.CPIError("stemcell_directory could not be made", err)
+		return bosh.CPIError("stemcell directory could not be created", err)
 	}
 
 	id := uuid.NewV4().String()

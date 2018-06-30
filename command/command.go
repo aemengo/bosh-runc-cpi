@@ -17,6 +17,10 @@ func New(method string, arguments []interface{}, config cfg.Config) (Command, er
 		return NewInfo()
 	case "delete_stemcell":
 		return NewDeleteStemcell(arguments, config)
+	case "create_disk":
+		return NewCreateDisk(arguments, config)
+	case "delete_disk":
+		return NewDeleteDisk(arguments, config)
 	default:
 		return NewUnimplemented(method)
 	}

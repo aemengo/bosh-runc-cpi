@@ -1,15 +1,16 @@
 package config
 
 import (
-	"github.com/aemengo/bosh-containerd-cpi/utils"
 	"errors"
-	"os"
-	"gopkg.in/yaml.v2"
 	"fmt"
+	"github.com/aemengo/bosh-containerd-cpi/utils"
+	"gopkg.in/yaml.v2"
+	"os"
 )
 
 type Config struct {
 	StemcellDir string `yaml:"stemcell_dir"`
+	DiskDir     string `yaml:"disk_dir"`
 }
 
 func New(configPath string) (Config, error) {
