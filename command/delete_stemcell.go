@@ -15,12 +15,12 @@ type deleteStemcell struct {
 
 func NewDeleteStemcell(arguments []interface{}, config cfg.Config) (*deleteStemcell, error) {
 	if len(arguments) == 0 {
-		return nil, errors.New("invalid stemcell path passed to create_stemcell command")
+		return nil, errors.New("invalid stemcell path passed to delete_stemcell command")
 	}
 
 	path, ok := arguments[0].(string)
 	if !ok {
-		return nil, errors.New("invalid stemcell path passed to create_stemcell command")
+		return nil, errors.New("invalid stemcell path passed to delete_stemcell command")
 	}
 
 	return &deleteStemcell{

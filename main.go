@@ -49,7 +49,7 @@ func expectNoError(err error) {
 
 	var response = bosh.Response{
 		Error: &bosh.Error{
-			Type:      "Bosh::Cpi::ConfigurationError",
+			Type:      "Bosh::Clouds::ConfigurationError",
 			Message:   err.Error(),
 			OkToRetry: false,
 		},

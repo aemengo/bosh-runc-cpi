@@ -21,7 +21,7 @@ func CPIError(prefix string, err error, logMessage ...string) Response {
 
 	return Response{
 		Error: &Error{
-			Type:      "Bosh::Cpi::CPIError",
+			Type:      "Bosh::Clouds::CPIError",
 			Message:   prefix + ": " + err.Error(),
 			OkToRetry: false,
 		},

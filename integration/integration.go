@@ -165,4 +165,28 @@ var _ = Describe("bosh-containerd-cpi", func() {
 		})
 	})
 
+    Describe("unimplemented cpi methods", func() {
+        It("returns a 'NotImplemented' error", func() {
+            var args = `{
+              "method": "some-unimplemented-method",
+              "arguments": [],
+              "context": {
+                "director_uuid": "e8c76164-7eda-405a-475a-cec0e51ee972"
+              }
+             }`
+
+            command := exec.Command(binaryPath, configPath)
+            command.Stdin = strings.NewReader(args)
+            session, err := gexec.Start(command, GinkgoWriter, GinkgoWriter)
+            Expect(err).NotTo(HaveOccurred())
+
+            <-session.Exited
+            Expect(session.ExitCode()).NotTo(Equal(0))
+
+            out := string(session.Out.Contents())
+            Expect(out).To(MatchJSON(
+                `{"result":null,"error":{"type":"Bosh::Clouds::NotImplemented","message":"\"some-unimplemented-method\" is not yet supported. Please call implemented method","ok_to_retry":false},"log":""}`,
+            ))
+        })
+    })
 })
