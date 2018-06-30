@@ -21,6 +21,8 @@ func New(method string, arguments []interface{}, config cfg.Config) (Command, er
 		return NewCreateDisk(arguments, config)
 	case "delete_disk":
 		return NewDeleteDisk(arguments, config)
+	case "has_disk":
+		return NewHasDisk(arguments, config)
 	default:
 		return NewUnimplemented(method)
 	}

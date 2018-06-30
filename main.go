@@ -32,7 +32,6 @@ func main() {
 	expectNoError(err)
 
 	response := command.Run()
-
 	json.NewEncoder(os.Stdout).Encode(&response)
 
 	if response.Error != nil {

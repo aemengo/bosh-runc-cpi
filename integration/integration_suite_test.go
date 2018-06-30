@@ -24,3 +24,8 @@ var _ = BeforeSuite(func() {
 var _ = AfterSuite(func() {
 	gexec.CleanupBuildArtifacts()
 })
+
+func must(session *gexec.Session) *gexec.Session {
+	Eventually(session).Should(gexec.Exit(0))
+	return session
+}

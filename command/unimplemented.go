@@ -19,7 +19,7 @@ func (c *unimplemented) Run() bosh.Response  {
 	return bosh.Response{
 		Error: &bosh.Error{
 			Type: "Bosh::Clouds::NotImplemented",
-			Message: fmt.Sprintf("%q is not yet supported. Please call implemented method", c.method),
+			Message: fmt.Sprintf("'%s' is not yet supported. Please call implemented method", c.method),
 		},
 	}
 }

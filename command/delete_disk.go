@@ -30,7 +30,7 @@ func NewDeleteDisk(arguments []interface{}, config cfg.Config) (*deleteDisk, err
 }
 
 func (c *deleteDisk) Run() bosh.Response  {
-	diskPath := filepath.Join(c.config.StemcellDir, c.diskPath)
+	diskPath := filepath.Join(c.config.DiskDir, c.diskPath)
 	err := os.RemoveAll(diskPath)
 
 	if err != nil {
