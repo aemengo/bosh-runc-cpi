@@ -23,6 +23,8 @@ func New(method string, arguments []interface{}, config cfg.Config) (Command, er
 		return NewDeleteDisk(arguments, config)
 	case "has_disk":
 		return NewHasDisk(arguments, config)
+	case "set_vm_metadata":
+		return NewSetVMMetadata()
 	default:
 		return NewUnimplemented(method)
 	}

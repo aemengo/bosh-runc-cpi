@@ -317,6 +317,37 @@ var _ = Describe("bosh-containerd-cpi", func() {
 		})
 	})
 
+    Describe("set_vm_metadata", func() {
+        It("is a no-op action that returns successfully", func() {
+            var args = `{
+              "method": "set_vm_metadata",
+              "arguments": [
+                "23b20ab4-7d08-4cb6-5136-a31486af2139",
+                {
+                  "director": "bosh-lite",
+                  "deployment": "zookeeper",
+                  "id": "fef527e2-cbd8-4d07-aa8a-39aea1fbb420",
+                  "job": "compilation-35a43e79-e770-41fd-81d5-0816306db687",
+                  "instance_group": "compilation-35a43e79-e770-41fd-81d5-0816306db687",
+                  "index": "0",
+                  "name": "compilation-35a43e79-e770-41fd-81d5-0816306db687/fef527e2-cbd8-4d07-aa8a-39aea1fbb420",
+                  "created_at": "2018-06-24T22:45:44Z"
+                }
+              ],
+              "context": {
+                "director_uuid": "eb896bb7-d54b-4e5b-97cd-dc4e1ab1204f",
+                "request_id": "cpi-685135"
+              },
+              "api_version": 1
+            }`
+
+            session := must(executeCPI(args))
+
+            out := string(session.Out.Contents())
+            Expect(out).To(MatchJSON(`{"result":null,"error":null,"log":""}`))
+        })
+    })
+
 	Describe("unimplemented cpi methods", func() {
 		It("returns a 'NotImplemented' error", func() {
 			var args = `{
