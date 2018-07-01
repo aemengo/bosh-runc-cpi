@@ -46,14 +46,11 @@ func expectNoError(err error) {
 		return
 	}
 
-	var response = bosh.Response{
-		Error: &bosh.Error{
-			Type:      "Bosh::Clouds::ConfigurationError",
-			Message:   err.Error(),
-			OkToRetry: false,
-		},
-		Log: "bosh-containerd-cpi has been misconfigured",
-	}
+	response := bosh.CPIError(
+		"failed to initialize",
+		err,
+		"bosh-containerd-cpi has been misconfigured",
+	)
 
 	json.NewEncoder(os.Stdout).Encode(&response)
 	os.Exit(1)
