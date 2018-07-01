@@ -1,36 +1,46 @@
 package command
 
 import (
-	cfg "github.com/aemengo/bosh-containerd-cpi/config"
 	"errors"
 	"github.com/aemengo/bosh-containerd-cpi/bosh"
-	"path/filepath"
-	"github.com/aemengo/bosh-containerd-cpi/utils"
+	cfg "github.com/aemengo/bosh-containerd-cpi/config"
+	"github.com/aemengo/bosh-containerd-cpi/pb"
+	"context"
 )
 
 type hasDisk struct {
-	config cfg.Config
-	diskPath string
+	pb.CPIDClient
+
+	ctx        context.Context
+	arguments  []interface{}
+	config     cfg.Config
+	logPrefix string
 }
 
-func NewHasDisk(arguments []interface{}, config cfg.Config) (*hasDisk, error) {
-	if len(arguments) == 0 {
-		return nil, errors.New("invalid disk path passed to has_disk command")
-	}
-
-	path, ok := arguments[0].(string)
-	if !ok {
-		return nil, errors.New("invalid disk path passed to has_disk command")
-	}
-
+func NewHasDisk(ctx context.Context, cpidClient pb.CPIDClient, arguments []interface{}, config cfg.Config) *hasDisk {
 	return &hasDisk{
-		config: config,
-		diskPath: path,
-	}, nil
+		CPIDClient: cpidClient,
+		ctx: ctx,
+		arguments: arguments,
+		config:   config,
+		logPrefix: "has_disk",
+	}
 }
 
 func (c *hasDisk) Run() bosh.Response {
-	diskPath := filepath.Join(c.config.DiskDir, c.diskPath)
-	exists := utils.Exists(diskPath)
-	return bosh.Response{Result: exists}
+	if len(c.arguments) == 0 {
+		return bosh.CPIError(c.logPrefix, errors.New("invalid disk id submitted"))
+	}
+
+	path, ok := c.arguments[0].(string)
+	if !ok {
+		return bosh.CPIError(c.logPrefix, errors.New("invalid disk id submitted"))
+	}
+
+	exists, err := c.CPIDClient.HasDisk(c.ctx, &pb.IDParcel{Value: path})
+	if err != nil {
+		return bosh.CloudError(c.logPrefix, err)
+	}
+
+	return bosh.Response{Result: exists.Value}
 }

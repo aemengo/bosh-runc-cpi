@@ -4,14 +4,17 @@ import (
 	"encoding/json"
 	"github.com/aemengo/bosh-containerd-cpi/bosh"
 	cfg "github.com/aemengo/bosh-containerd-cpi/config"
-	cmd "github.com/aemengo/bosh-containerd-cpi/command"
 	"log"
 	"os"
+	"context"
+	cmd "github.com/aemengo/bosh-containerd-cpi/command"
+	"google.golang.org/grpc"
+	"github.com/aemengo/bosh-containerd-cpi/pb"
 )
 
 func main() {
 	if len(os.Args) != 2 {
-		log.Println("[USAGE] - | %v <config-path>", os.Args[0])
+		log.Fatalf("[USAGE] - | %s <config-path>", os.Args[0])
 	}
 
 	config, err := cfg.New(os.Args[1])
@@ -21,16 +24,21 @@ func main() {
 		Method    string        `json:"method"`
 		Arguments []interface{} `json:"arguments"`
 		Context   struct {
-			DirectorUUID string `json:"director_uuid"`
-		} `json:"context"`
+					  DirectorUUID string `json:"director_uuid"`
+				  } `json:"context"`
 	}
 
 	err = json.NewDecoder(os.Stdin).Decode(&args)
 	expectNoError(err)
 
-	command, err := cmd.New(args.Method, args.Arguments, config)
+	conn, err := grpc.Dial(config.ServerAddr(), grpc.WithInsecure())
 	expectNoError(err)
+	defer conn.Close()
 
+	ctx := context.Background()
+	cpidClient := pb.NewCPIDClient(conn)
+
+	command := cmd.New(ctx, cpidClient, args.Method, args.Arguments, config)
 	response := command.Run()
 	json.NewEncoder(os.Stdout).Encode(&response)
 
@@ -49,7 +57,7 @@ func expectNoError(err error) {
 	response := bosh.CPIError(
 		"failed to initialize",
 		err,
-		"bosh-containerd-cpi has been misconfigured",
+		"cpi has been misconfigured",
 	)
 
 	json.NewEncoder(os.Stdout).Encode(&response)

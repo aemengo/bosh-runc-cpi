@@ -3,39 +3,45 @@ package command
 import (
 	"github.com/aemengo/bosh-containerd-cpi/bosh"
 	cfg "github.com/aemengo/bosh-containerd-cpi/config"
-	"os"
 	"errors"
-	"path/filepath"
+	"context"
+	"github.com/aemengo/bosh-containerd-cpi/pb"
 )
 
 type deleteStemcell struct {
+	pb.CPIDClient
+
+	ctx context.Context
 	config cfg.Config
-	stemcellPath string
+	arguments []interface{}
+	logPrefix string
+
 }
 
-func NewDeleteStemcell(arguments []interface{}, config cfg.Config) (*deleteStemcell, error) {
-	if len(arguments) == 0 {
-		return nil, errors.New("invalid stemcell path passed to delete_stemcell command")
-	}
-
-	path, ok := arguments[0].(string)
-	if !ok {
-		return nil, errors.New("invalid stemcell path passed to delete_stemcell command")
-	}
-
+func NewDeleteStemcell(ctx context.Context, cpidClient pb.CPIDClient, arguments []interface{}, config cfg.Config) *deleteStemcell {
 	return &deleteStemcell{
+		CPIDClient: cpidClient,
+		ctx: ctx,
+		arguments: arguments,
 		config: config,
-		stemcellPath: path,
-	}, nil
+		logPrefix: "delete_stemcell",
+	}
 }
 
 func (c *deleteStemcell) Run() bosh.Response {
-	stemcellPath := filepath.Join(c.config.StemcellDir, c.stemcellPath)
-	err := os.RemoveAll(stemcellPath)
-
-	if err != nil {
-		return bosh.CPIError("failed to delete stemcell " + c.stemcellPath, err)
-	} else {
-		return bosh.Response{}
+	if len(c.arguments) == 0 {
+		return bosh.CPIError(c.logPrefix, errors.New("invalid stemcell id submitted"))
 	}
+
+	path, ok := c.arguments[0].(string)
+	if !ok {
+		return bosh.CPIError(c.logPrefix, errors.New("invalid stemcell id submitted"))
+	}
+
+	_, err := c.DeleteStemcell(c.ctx, &pb.IDParcel{Value: path})
+	if err != nil {
+		return bosh.CloudError(c.logPrefix, err)
+	}
+
+	return bosh.Response{}
 }

@@ -5,22 +5,20 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gexec"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
+	"io"
 )
 
 var _ = Describe("bosh-containerd-cpi", func() {
 
 	var (
-		configPath string
-		config     map[string]interface{}
-        executeCPI  = func(args string) *gexec.Session {
-            command := exec.Command(binaryPath, configPath)
+        executeCPI = func(args string) *gexec.Session {
+            command := exec.Command(cpiPath, configPath)
             command.Stdin = strings.NewReader(args)
             session, err := gexec.Start(command, GinkgoWriter, GinkgoWriter)
             Expect(err).NotTo(HaveOccurred())
@@ -29,45 +27,30 @@ var _ = Describe("bosh-containerd-cpi", func() {
 	)
 
 	AfterEach(func() {
-		os.RemoveAll(configPath)
-	})
-
-	JustBeforeEach(func() {
-		f, _ := ioutil.TempFile("", "bosh-cpi-test-")
-		yaml.NewEncoder(f).Encode(&config)
-		configPath = f.Name()
+		os.RemoveAll(stemcellDir)
+		os.RemoveAll(diskDir)
+		os.MkdirAll(stemcellDir, os.ModePerm)
+		os.MkdirAll(diskDir, os.ModePerm)
 	})
 
 	Describe("create_stemcell", func() {
 
 		var (
-			tempDir         string
-			stemcellSrcDir  string
-			stemcellDestDir string
+			stemcellSrcPath         string
 		)
 
 		BeforeEach(func() {
-			var err error
-			tempDir, err = ioutil.TempDir("", "bosh-cpi-test-")
+			stemcellSrcFile, err := ioutil.TempFile("", "bosh-cpi-test-")
 			Expect(err).NotTo(HaveOccurred())
 
-			stemcellSrcDir = filepath.Join(tempDir, "stemcell-src")
-			stemcellDestDir = filepath.Join(tempDir, "stemcell-dest")
+			_, err = io.WriteString(stemcellSrcFile, "some-stemcell-content")
+			Expect(err).NotTo(HaveOccurred())
 
-			os.MkdirAll(stemcellSrcDir, os.ModePerm)
-			ioutil.WriteFile(
-				filepath.Join(stemcellSrcDir, "some-stemcell.tgz"),
-				[]byte("some-content"),
-				0600,
-			)
-
-			config = map[string]interface{}{
-				"stemcell_dir": stemcellDestDir,
-			}
+			stemcellSrcPath = stemcellSrcFile.Name()
 		})
 
 		AfterEach(func() {
-			os.RemoveAll(tempDir)
+			os.RemoveAll(stemcellSrcPath)
 		})
 
 		It("moves the stemcell to the stemcell dir", func() {
@@ -80,7 +63,7 @@ var _ = Describe("bosh-containerd-cpi", func() {
               "context": {
                 "director_uuid": "e8c76164-7eda-405a-475a-cec0e51ee972"
               }
-             }`, filepath.Join(stemcellSrcDir, "some-stemcell.tgz"))
+             }`, stemcellSrcPath)
 
             session := must(executeCPI(args))
 
@@ -88,9 +71,9 @@ var _ = Describe("bosh-containerd-cpi", func() {
             Expect(out).To(MatchRegexp(`result":".*"`))
             Expect(out).To(MatchRegexp(`error":null`))
 
-            files, _ := ioutil.ReadDir(stemcellDestDir)
-            contents, _ := ioutil.ReadFile(filepath.Join(stemcellDestDir, files[0].Name()))
-            Expect(string(contents)).To(Equal("some-content"))
+            files, _ := ioutil.ReadDir(stemcellDir)
+            contents, _ := ioutil.ReadFile(filepath.Join(stemcellDir, files[0].Name()))
+            Expect(string(contents)).To(Equal("some-stemcell-content"))
 		})
 	})
 
@@ -116,15 +99,10 @@ var _ = Describe("bosh-containerd-cpi", func() {
 	Describe("delete_stemcell", func() {
 
 		var (
-			stemcellDir  string
 			stemcellPath string
 		)
 
 		BeforeEach(func() {
-			var err error
-			stemcellDir, err = ioutil.TempDir("", "bosh-cpi-test-")
-			Expect(err).NotTo(HaveOccurred())
-
 			stemcellPath = filepath.Join(stemcellDir, "abc-123-some-guid")
 
 			ioutil.WriteFile(
@@ -132,14 +110,6 @@ var _ = Describe("bosh-containerd-cpi", func() {
 				[]byte("some-content"),
 				0600,
 			)
-
-			config = map[string]interface{}{
-				"stemcell_dir": stemcellDir,
-			}
-		})
-
-		AfterEach(func() {
-			os.RemoveAll(stemcellDir)
 		})
 
 		It("remove the stemcell from the stemcell dir", func() {
@@ -163,26 +133,10 @@ var _ = Describe("bosh-containerd-cpi", func() {
 
 	Describe("create_disk", func() {
 
-		var (
-			diskDir string
-		)
-
 		BeforeEach(func() {
 			if runtime.GOOS != "linux" {
 				Skip("the following test require a linux environment")
 			}
-
-			var err error
-			diskDir, err = ioutil.TempDir("", "bosh-cpi-test-")
-			Expect(err).NotTo(HaveOccurred())
-
-			config = map[string]interface{}{
-				"disk_dir": diskDir,
-			}
-		})
-
-		AfterEach(func() {
-			os.RemoveAll(diskDir)
 		})
 
 		It("creates a disk in the disk_directory", func() {
@@ -212,25 +166,16 @@ var _ = Describe("bosh-containerd-cpi", func() {
 	Describe("delete_disk", func() {
 
 		var (
-			tempDir string
-			diskDir string
+			diskPath string
 		)
 
 		BeforeEach(func() {
-			var err error
-			tempDir, err = ioutil.TempDir("", "bosh-cpi-test-")
-			Expect(err).NotTo(HaveOccurred())
-
-			diskDir = filepath.Join(tempDir, "abc-123-some-guid")
-			os.MkdirAll(diskDir, os.ModePerm)
-
-			config = map[string]interface{}{
-				"disk_dir": tempDir,
-			}
+			diskPath = filepath.Join(diskDir, "abc-123-some-guid")
+			os.MkdirAll(diskPath, os.ModePerm)
 		})
 
 		AfterEach(func() {
-			os.RemoveAll(tempDir)
+			os.RemoveAll(diskPath)
 		})
 
 		It("remove the disk from the disk dir", func() {
@@ -244,41 +189,31 @@ var _ = Describe("bosh-containerd-cpi", func() {
               }
             }`
 
-			Expect(diskDir).To(BeADirectory())
+			Expect(diskPath).To(BeADirectory())
 
             session := must(executeCPI(args))
 
 			out := string(session.Out.Contents())
 			Expect(out).To(MatchJSON(`{"result":null,"error":null,"log":""}`))
-			Expect(diskDir).NotTo(BeAnExistingFile())
+			Expect(diskPath).NotTo(BeAnExistingFile())
 		})
 	})
 
 	Describe("has_disk", func() {
-
-		var (
-			tempDir string
-			diskDir string
-		)
-
-		BeforeEach(func() {
-			var err error
-			tempDir, err = ioutil.TempDir("", "bosh-cpi-test-")
-			Expect(err).NotTo(HaveOccurred())
-
-			diskDir = filepath.Join(tempDir, "abc-123-some-guid")
-			os.MkdirAll(diskDir, os.ModePerm)
-
-			config = map[string]interface{}{
-				"disk_dir": tempDir,
-			}
-		})
-
-		AfterEach(func() {
-			os.RemoveAll(tempDir)
-		})
-
 		Context("when the disk exists", func() {
+			var (
+				diskPath string
+			)
+
+			BeforeEach(func() {
+				diskPath = filepath.Join(diskDir, "abc-123-some-guid")
+				os.MkdirAll(diskPath, os.ModePerm)
+			})
+
+			AfterEach(func() {
+				os.RemoveAll(diskPath)
+			})
+
 			It("returns true", func() {
                 var args = `{
                   "method": "has_disk",

@@ -4,8 +4,8 @@ import "github.com/aemengo/bosh-containerd-cpi/bosh"
 
 type info struct {}
 
-func NewInfo() (*info, error) {
-	return &info{}, nil
+func NewInfo() *info {
+	return &info{}
 }
 
 func (c *info) Run() bosh.Response {

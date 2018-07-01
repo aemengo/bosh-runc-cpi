@@ -2,62 +2,59 @@ package command
 
 import (
 	cfg "github.com/aemengo/bosh-containerd-cpi/config"
-	"errors"
 	"github.com/aemengo/bosh-containerd-cpi/bosh"
-	"strconv"
-	"path/filepath"
-	"github.com/satori/go.uuid"
-	"os"
-	"io/ioutil"
-	"github.com/aemengo/bosh-containerd-cpi/utils"
+	"github.com/aemengo/bosh-containerd-cpi/pb"
+	"context"
+	"errors"
 )
 
 type createDisk struct {
-	config cfg.Config
-	size int
+    pb.CPIDClient
+
+	ctx context.Context
+    arguments []interface{}
+    config cfg.Config
+	logPrefix string
 }
 
-func NewCreateDisk(arguments []interface{}, config cfg.Config) (*createDisk, error) {
-	if len(arguments) == 0 {
-		return nil, errors.New("invalid disk size passed to create_disk command")
-	}
-
-	size, ok := arguments[0].(int)
-	if !ok {
-		return nil, errors.New("invalid disk size passed to create_disk command")
-	}
-
+func NewCreateDisk(ctx context.Context, cpidClient pb.CPIDClient, arguments []interface{}, config cfg.Config) *createDisk {
 	return &createDisk{
+		CPIDClient: cpidClient,
+		ctx: ctx,
+		arguments: arguments,
 		config: config,
-		size: size,
-	}, nil
+		logPrefix: "create_disk",
+	}
 }
 
 func (c *createDisk) Run() bosh.Response {
-	id := uuid.NewV4().String()
-	diskPath := filepath.Join(c.config.DiskDir, id)
-
-	err := os.MkdirAll(c.config.DiskDir, os.ModePerm)
-	if err != nil {
-		return bosh.CPIError("disk directory could not be created", err)
+	if len(c.arguments) == 0 {
+		return bosh.CPIError(c.logPrefix, errors.New("invalid disk size submitted"))
 	}
 
-	err = ioutil.WriteFile(diskPath, []byte{}, 0600)
-	if err != nil {
-		return bosh.CPIError("disk directory could not be created", err)
+	size, ok := c.parseInt32(c.arguments[0])
+	if !ok {
+		return bosh.CPIError(c.logPrefix, errors.New("invalid disk size submitted"))
 	}
 
-	sizeStr := strconv.Itoa(c.size) + "MB"
-
-	err = utils.RunCommand("truncate", "-s", sizeStr, diskPath)
+	id, err := c.CreateDisk(c.ctx, &pb.ValueParcel{Value: size})
 	if err != nil {
-		return bosh.CPIError("failed to resize disk", err)
+		return bosh.CloudError(c.logPrefix, err)
 	}
 
-	err = utils.RunCommand("/sbin/mkfs", "-t", "ext4", "-F", diskPath)
-	if err != nil {
-		return bosh.CPIError("failed to build disk filesystem", err)
+	return bosh.Response{Result: id.Value}
+}
+
+func (*createDisk) parseInt32(arg interface{}) (int32, bool) {
+	vali32, ok := arg.(int32)
+	if ok {
+		return vali32, true
 	}
 
-	return bosh.Response{Result: id}
+	valf64, ok := arg.(float64)
+	if ok {
+		return int32(valf64), true
+	}
+
+	return 0, false
 }

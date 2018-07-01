@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package pb;
+
+service CPID {
+  rpc CreateStemcell (stream DataParcel) returns (IDParcel);
+  rpc DeleteStemcell (IDParcel) returns (Void);
+  rpc DeleteDisk (IDParcel) returns (Void);
+  rpc CreateDisk (ValueParcel) returns (IDParcel);
+  rpc HasDisk (IDParcel) returns (TruthParcel);
+}
+
+message DataParcel {
+  bytes value = 1;
+}
+
+message TruthParcel {
+  bool value = 1;
+}
+
+message ValueParcel {
+  int32 value = 1;
+}
+
+message IDParcel {
+  string value = 1;
+}
+
+message Void {}

@@ -3,57 +3,77 @@ package command
 import (
 	"github.com/aemengo/bosh-containerd-cpi/bosh"
 	cfg "github.com/aemengo/bosh-containerd-cpi/config"
-	"github.com/satori/go.uuid"
 	"os"
 	"errors"
-	"path/filepath"
 	"io"
+	"github.com/aemengo/bosh-containerd-cpi/pb"
+	"context"
+	"fmt"
 )
 
 type createStemcell struct {
+	pb.CPIDClient
+
+	ctx context.Context
+	arguments []interface{}
 	config cfg.Config
-	stemcellSrcPath string
+	logPrefix string
 }
 
-func NewCreateStemcell(arguments []interface{}, config cfg.Config) (*createStemcell, error) {
-	if len(arguments) == 0 {
-		return nil, errors.New("invalid stemcell path passed to create_stemcell command")
-	}
-
-	path, ok := arguments[0].(string)
-	if !ok {
-		return nil, errors.New("invalid stemcell path passed to create_stemcell command")
-	}
-
+func NewCreateStemcell(ctx context.Context, cpidClient pb.CPIDClient, arguments []interface{}, config cfg.Config) *createStemcell {
 	return &createStemcell{
+		CPIDClient: cpidClient,
+		ctx: ctx,
+		arguments: arguments,
 		config: config,
-		stemcellSrcPath: path,
-	}, nil
+		logPrefix: "create_stemcell",
+	}
 }
 
 func (c *createStemcell) Run() bosh.Response {
-	r, err := os.Open(c.stemcellSrcPath)
-	if err != nil {
-		return bosh.CPIError("failed to read stemcell to path " + c.stemcellSrcPath, err)
+	if len(c.arguments) == 0 {
+		return bosh.CPIError(c.logPrefix, errors.New("invalid stemcell id submitted"))
 	}
 
-	err = os.MkdirAll(c.config.StemcellDir, os.ModePerm)
-	if err != nil {
-		return bosh.CPIError("stemcell directory could not be created", err)
+	path, ok := c.arguments[0].(string)
+	if !ok {
+		return bosh.CPIError(c.logPrefix, errors.New("invalid stemcell id submitted"))
 	}
 
-	id := uuid.NewV4().String()
-	destPath := filepath.Join(c.config.StemcellDir, id)
-
-	f, err := os.Create(destPath)
+	f, err := os.Open(path)
 	if err != nil {
-		return bosh.CPIError("failed to create stemcell at path " + destPath, err)
+		return bosh.CPIError(c.logPrefix, fmt.Errorf("failed to read stemcell to path: %s: %s" + path, err))
+	}
+	defer f.Close()
+
+	stream, err := c.CreateStemcell(c.ctx)
+	if err != nil {
+		return bosh.CloudError(c.logPrefix, err)
 	}
 
-	_, err = io.Copy(f, r)
-	if err != nil {
-		return bosh.CPIError("failed to create stemcell", err)
+	for {
+		chunk := make([]byte, 64 * 1024)
+		n, err := f.Read(chunk)
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			return bosh.CloudError(c.logPrefix, err)
+		}
+
+		if n < len(chunk) {
+			chunk = chunk[:n]
+		}
+
+		err = stream.Send(&pb.DataParcel{Value: chunk})
+		if err != nil {
+			return bosh.CloudError(c.logPrefix, err)
+		}
 	}
 
-	return bosh.Response{Result: id}
+	id, err := stream.CloseAndRecv()
+	if err != nil {
+		return bosh.CloudError(c.logPrefix, err)
+	}
+
+	return bosh.Response{Result: id.Value}
 }

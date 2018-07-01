@@ -11,6 +11,8 @@ import (
 type Config struct {
 	StemcellDir string `yaml:"stemcell_dir"`
 	DiskDir     string `yaml:"disk_dir"`
+	ServerHost  string `yaml:"host"`
+	ServerPort  string `yaml:"port"`
 }
 
 func New(configPath string) (Config, error) {
@@ -31,4 +33,8 @@ func New(configPath string) (Config, error) {
 	}
 
 	return config, nil
+}
+
+func (c *Config) ServerAddr() string {
+	return c.ServerHost + ":" + c.ServerPort
 }
