@@ -30,9 +30,9 @@
   unused-packages = true
 
 [[constraint]]
-  name = "github.com/containerd/containerd"
-  version = "1.1.0"
-
-[[constraint]]
   name = "github.com/satori/go.uuid"
   version = "1.2.0"
+
+[[constraint]]
+  name = "google.golang.org/grpc"
+  version = "1.13.0"
