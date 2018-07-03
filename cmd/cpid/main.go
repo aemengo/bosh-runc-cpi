@@ -6,6 +6,7 @@ import (
 	"os"
 	"google.golang.org/grpc"
 	cfg "github.com/aemengo/bosh-containerd-cpi/config"
+	rc "github.com/aemengo/bosh-containerd-cpi/runc"
 	"github.com/aemengo/bosh-containerd-cpi/pb"
 	"github.com/aemengo/bosh-containerd-cpi/service"
 )
@@ -23,6 +24,7 @@ func main() {
 
 	config, err := cfg.New(os.Args[1])
 	expectNoError(err)
+	expectNoError(os.MkdirAll(config.VMDir, os.ModePerm))
 	expectNoError(os.MkdirAll(config.StemcellDir, os.ModePerm))
 	expectNoError(os.MkdirAll(config.DiskDir, os.ModePerm))
 
@@ -30,8 +32,9 @@ func main() {
 	expectNoError(err)
 
 	s := grpc.NewServer()
+	runc := rc.New()
 
-	pb.RegisterCPIDServer(s, service.New(config, logger))
+	pb.RegisterCPIDServer(s, service.New(config, runc, logger))
 
 	err = s.Serve(lis)
 	expectNoError(err)

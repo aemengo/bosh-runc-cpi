@@ -4,3 +4,5 @@
 bin
 
 linuxkit/out
+
+integration/fixtures/*.tgz

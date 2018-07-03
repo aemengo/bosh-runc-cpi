@@ -1,42 +1,47 @@
 package integration
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gexec"
+	"io"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
-	"io"
+	"time"
 )
 
 var _ = Describe("bosh-containerd-cpi", func() {
 
 	var (
-        executeCPI = func(args string) *gexec.Session {
-            command := exec.Command(cpiPath, configPath)
-            command.Stdin = strings.NewReader(args)
-            session, err := gexec.Start(command, GinkgoWriter, GinkgoWriter)
-            Expect(err).NotTo(HaveOccurred())
-            return session
-        }
+		executeCPI = func(args string) *gexec.Session {
+			command := exec.Command(cpiPath, configPath)
+			command.Stdin = strings.NewReader(args)
+			session, err := gexec.Start(command, GinkgoWriter, GinkgoWriter)
+			Expect(err).NotTo(HaveOccurred())
+			return session
+		}
 	)
 
 	AfterEach(func() {
 		os.RemoveAll(stemcellDir)
 		os.RemoveAll(diskDir)
+		os.RemoveAll(vmDir)
 		os.MkdirAll(stemcellDir, os.ModePerm)
 		os.MkdirAll(diskDir, os.ModePerm)
+		os.MkdirAll(vmDir, os.ModePerm)
 	})
 
 	Describe("create_stemcell", func() {
 
 		var (
-			stemcellSrcPath         string
+			stemcellSrcPath string
 		)
 
 		BeforeEach(func() {
@@ -65,15 +70,15 @@ var _ = Describe("bosh-containerd-cpi", func() {
               }
              }`, stemcellSrcPath)
 
-            session := must(executeCPI(args))
+			session := must(executeCPI(args))
 
-            out := string(session.Out.Contents())
-            Expect(out).To(MatchRegexp(`result":".*"`))
-            Expect(out).To(MatchRegexp(`error":null`))
+			out := string(session.Out.Contents())
+			Expect(out).To(MatchRegexp(`result":".*"`))
+			Expect(out).To(MatchRegexp(`error":null`))
 
-            files, _ := ioutil.ReadDir(stemcellDir)
-            contents, _ := ioutil.ReadFile(filepath.Join(stemcellDir, files[0].Name()))
-            Expect(string(contents)).To(Equal("some-stemcell-content"))
+			files, _ := ioutil.ReadDir(stemcellDir)
+			contents, _ := ioutil.ReadFile(filepath.Join(stemcellDir, files[0].Name()))
+			Expect(string(contents)).To(Equal("some-stemcell-content"))
 		})
 	})
 
@@ -87,7 +92,7 @@ var _ = Describe("bosh-containerd-cpi", func() {
               }
             }`
 
-            session := must(executeCPI(args))
+			session := must(executeCPI(args))
 
 			out := string(session.Out.Contents())
 			Expect(out).To(MatchJSON(
@@ -123,7 +128,7 @@ var _ = Describe("bosh-containerd-cpi", func() {
               }
             }`
 
-            session := must(executeCPI(args))
+			session := must(executeCPI(args))
 
 			out := string(session.Out.Contents())
 			Expect(out).To(MatchJSON(`{"result":null,"error":null,"log":""}`))
@@ -135,7 +140,7 @@ var _ = Describe("bosh-containerd-cpi", func() {
 
 		BeforeEach(func() {
 			if runtime.GOOS != "linux" {
-				Skip("the following test require a linux environment")
+				Skip("the following test requires a linux environment")
 			}
 		})
 
@@ -143,7 +148,7 @@ var _ = Describe("bosh-containerd-cpi", func() {
 			var args = `  {
               "method": "create_disk",
               "arguments": [
-                100,
+                10,
                 {},
                 "vm-870c3e28-a4a7-4d2f-5272-18f2a136cb58"
               ],
@@ -152,7 +157,7 @@ var _ = Describe("bosh-containerd-cpi", func() {
               }
             }`
 
-            session := must(executeCPI(args))
+			session := must(executeCPI(args))
 
 			out := string(session.Out.Contents())
 			Expect(out).To(MatchRegexp(`result":".*"`))
@@ -160,6 +165,9 @@ var _ = Describe("bosh-containerd-cpi", func() {
 
 			files, _ := ioutil.ReadDir(diskDir)
 			Expect(files).To(HaveLen(1))
+
+			f, _ := os.Stat(filepath.Join(diskDir, files[0].Name()))
+			Expect(f.Size()).To(BeNumerically("==", 10000000))
 		})
 	})
 
@@ -191,7 +199,7 @@ var _ = Describe("bosh-containerd-cpi", func() {
 
 			Expect(diskPath).To(BeADirectory())
 
-            session := must(executeCPI(args))
+			session := must(executeCPI(args))
 
 			out := string(session.Out.Contents())
 			Expect(out).To(MatchJSON(`{"result":null,"error":null,"log":""}`))
@@ -215,7 +223,7 @@ var _ = Describe("bosh-containerd-cpi", func() {
 			})
 
 			It("returns true", func() {
-                var args = `{
+				var args = `{
                   "method": "has_disk",
                   "arguments": [
                     "abc-123-some-guid"
@@ -225,7 +233,7 @@ var _ = Describe("bosh-containerd-cpi", func() {
                   }
                 }`
 
-                session := must(executeCPI(args))
+				session := must(executeCPI(args))
 
 				out := string(session.Out.Contents())
 				Expect(out).To(MatchJSON(`{"result":true,"error":null,"log":""}`))
@@ -244,7 +252,7 @@ var _ = Describe("bosh-containerd-cpi", func() {
                   }
                 }`
 
-                session := must(executeCPI(args))
+				session := must(executeCPI(args))
 
 				out := string(session.Out.Contents())
 				Expect(out).To(MatchJSON(`{"result":false,"error":null,"log":""}`))
@@ -252,9 +260,9 @@ var _ = Describe("bosh-containerd-cpi", func() {
 		})
 	})
 
-    Describe("set_vm_metadata", func() {
-        It("is a no-op action that returns successfully", func() {
-            var args = `{
+	Describe("set_vm_metadata", func() {
+		It("is a no-op action that returns successfully", func() {
+			var args = `{
               "method": "set_vm_metadata",
               "arguments": [
                 "23b20ab4-7d08-4cb6-5136-a31486af2139",
@@ -276,12 +284,12 @@ var _ = Describe("bosh-containerd-cpi", func() {
               "api_version": 1
             }`
 
-            session := must(executeCPI(args))
+			session := must(executeCPI(args))
 
-            out := string(session.Out.Contents())
-            Expect(out).To(MatchJSON(`{"result":null,"error":null,"log":""}`))
-        })
-    })
+			out := string(session.Out.Contents())
+			Expect(out).To(MatchJSON(`{"result":null,"error":null,"log":""}`))
+		})
+	})
 
 	Describe("unimplemented cpi methods", func() {
 		It("returns a 'NotImplemented' error", func() {
@@ -293,7 +301,7 @@ var _ = Describe("bosh-containerd-cpi", func() {
               }
              }`
 
-            session := executeCPI(args)
+			session := executeCPI(args)
 
 			<-session.Exited
 			Expect(session.ExitCode()).NotTo(Equal(0))
@@ -302,6 +310,122 @@ var _ = Describe("bosh-containerd-cpi", func() {
 			Expect(out).To(MatchJSON(
 				`{"result":null,"error":{"type":"Bosh::Clouds::NotImplemented","message":"'some-unimplemented-method' is not yet supported. Please call implemented method","ok_to_retry":false},"log":""}`,
 			))
+		})
+	})
+
+	Describe("lifecycle", func() {
+
+		var stemcellPath string
+
+		BeforeEach(func() {
+			if runtime.GOOS != "linux" {
+				Skip("the following test requires a linux environment")
+			}
+
+			if err := exec.Command("runc", "-v").Run(); err != nil {
+				Skip("the following test requires the runc executable to be available in the $PATH")
+			}
+
+			stemcellPath = filepath.Join("fixtures", "warden.tgz")
+			if _, err := os.Stat(stemcellPath); os.IsNotExist(err) {
+				command := exec.Command("wget", stemcellDownloadURL, "--no-verbose", "-O", stemcellPath)
+				command.Dir = "."
+				session, err := gexec.Start(command, GinkgoWriter, GinkgoWriter)
+				Expect(err).NotTo(HaveOccurred())
+				<-session.Exited
+			}
+		})
+
+		It("creates, deletes and manages disk to vm", func() {
+			By("uploading a stemcell")
+			var args = fmt.Sprintf(`{
+              "method": "create_stemcell",
+              "arguments": [
+                "%s",
+                {}
+              ],
+              "context": {
+                "director_uuid": "e8c76164-7eda-405a-475a-cec0e51ee972"
+              }
+             }`, stemcellPath)
+
+			session := must(executeCPI(args), time.Minute)
+
+			var result struct {
+				ID string `json:"result"`
+			}
+
+			err := json.NewDecoder(bytes.NewReader(session.Out.Contents())).Decode(&result)
+			Expect(err).NotTo(HaveOccurred())
+
+			By("creating a vm")
+			args = fmt.Sprintf(`{
+			  "method": "create_vm",
+			  "arguments": [
+				"some-uninteresting-value",
+				"%s"
+			  ],
+			  "context": {
+			    "director_uuid": "e8c76164-7eda-405a-475a-cec0e51ee972"
+			  }
+			}`, result.ID)
+
+			session = must(executeCPI(args), time.Minute)
+
+			result = struct {
+				ID string `json:"result"`
+			}{}
+
+			err = json.NewDecoder(bytes.NewReader(session.Out.Contents())).Decode(&result)
+			Expect(err).NotTo(HaveOccurred())
+
+			By("checking has_vm")
+			args = fmt.Sprintf(`{
+			  "method": "has_vm",
+			  "arguments": [
+				"%s"
+			  ],
+			  "context": {
+			    "director_uuid": "e8c76164-7eda-405a-475a-cec0e51ee972"
+			  }
+			}`, result.ID)
+
+			session = must(executeCPI(args))
+
+			out := string(session.Out.Contents())
+			Expect(out).To(MatchJSON(`{"result":true,"error":null,"log":""}`))
+
+			By("deleting vm")
+			args = fmt.Sprintf(`{
+			  "method": "delete_vm",
+			  "arguments": [
+				"%s"
+			  ],
+			  "context": {
+			    "director_uuid": "e8c76164-7eda-405a-475a-cec0e51ee972"
+			  }
+			}`, result.ID)
+
+			session = must(executeCPI(args), 10 * time.Second)
+
+			out = string(session.Out.Contents())
+			Expect(out).To(MatchJSON(`{"result":null,"error":null,"log":""}`))
+
+			By("checking has_vm")
+			args = fmt.Sprintf(`{
+			  "method": "has_vm",
+			  "arguments": [
+				"%s"
+			  ],
+			  "context": {
+			    "director_uuid": "e8c76164-7eda-405a-475a-cec0e51ee972"
+			  }
+			}`, result.ID)
+
+			session = must(executeCPI(args))
+
+			out = string(session.Out.Contents())
+			Expect(out).To(MatchJSON(`{"result":false,"error":null,"log":""}`))
 		})
 	})
 })

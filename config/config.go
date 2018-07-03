@@ -11,6 +11,7 @@ import (
 type Config struct {
 	StemcellDir string `yaml:"stemcell_dir"`
 	DiskDir     string `yaml:"disk_dir"`
+	VMDir       string `yaml:"vm_dir"`
 	ServerHost  string `yaml:"host"`
 	ServerPort  string `yaml:"port"`
 }

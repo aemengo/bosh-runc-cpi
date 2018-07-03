@@ -15,8 +15,6 @@ func New(ctx context.Context, cpidClient pb.CPIDClient, method string, arguments
 	switch method {
 	case "create_stemcell":
 		return NewCreateStemcell(ctx, cpidClient, arguments, config)
-	case "info":
-		return NewInfo()
 	case "delete_stemcell":
 		return NewDeleteStemcell(ctx, cpidClient, arguments, config)
 	case "create_disk":
@@ -25,6 +23,14 @@ func New(ctx context.Context, cpidClient pb.CPIDClient, method string, arguments
 		return NewDeleteDisk(ctx, cpidClient, arguments, config)
 	case "has_disk":
 		return NewHasDisk(ctx, cpidClient, arguments, config)
+	case "create_vm":
+		return NewCreateVM(ctx, cpidClient, arguments, config)
+	case "delete_vm":
+		return NewDeleteVM(ctx, cpidClient, arguments, config)
+	case "has_vm":
+		return NewHasVM(ctx, cpidClient, arguments, config)
+	case "info":
+		return NewInfo()
 	case "set_vm_metadata":
 		return NewSetVMMetadata()
 	default:

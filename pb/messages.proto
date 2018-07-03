@@ -8,6 +8,13 @@ service CPID {
   rpc DeleteDisk (IDParcel) returns (Void);
   rpc CreateDisk (ValueParcel) returns (IDParcel);
   rpc HasDisk (IDParcel) returns (TruthParcel);
+  rpc CreateVM (CreateVMOpts) returns (IDParcel);
+  rpc DeleteVM (IDParcel) returns (Void);
+  rpc HasVM (IDParcel) returns (TruthParcel);
+}
+
+message CreateVMOpts {
+  string stemcellID = 1;
 }
 
 message DataParcel {
