@@ -11,6 +11,7 @@ import (
 	"github.com/aemengo/bosh-containerd-cpi/service"
 	"os/signal"
 	"syscall"
+	"path/filepath"
 )
 
 var logger *log.Logger
@@ -29,8 +30,9 @@ func main() {
 	expectNoError(os.MkdirAll(config.VMDir, os.ModePerm))
 	expectNoError(os.MkdirAll(config.StemcellDir, os.ModePerm))
 	expectNoError(os.MkdirAll(config.DiskDir, os.ModePerm))
+	expectNoError(prepareUnixSocket(config))
 
-	lis, err := net.Listen("tcp", ":" + config.ServerPort)
+	lis, err := net.Listen(config.NetworkType, config.NetworkAddress)
 	expectNoError(err)
 
 	s := grpc.NewServer()
@@ -43,6 +45,20 @@ func main() {
 	logger.Println("Initializing bosh-linuxkit-cpid...")
 	err = s.Serve(lis)
 	expectNoError(err)
+}
+
+func prepareUnixSocket(config cfg.Config) error {
+	if config.NetworkType != "unix" {
+		return nil
+	}
+
+	if err := os.RemoveAll(config.NetworkAddress); err != nil {
+		return err
+	}
+
+	dir := filepath.Dir(config.NetworkAddress)
+
+	return os.MkdirAll(dir, os.ModePerm)
 }
 
 func killServerWhenStopped(sigs chan os.Signal, server *grpc.Server, logger *log.Logger) {

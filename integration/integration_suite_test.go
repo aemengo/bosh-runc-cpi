@@ -34,8 +34,8 @@ var (
 stemcell_dir: %s
 disk_dir: %s
 vm_dir: %s
-host: 127.0.0.1
-port: 9999
+network_type: unix
+address: "/tmp/cpid.sock"
 `, stemcellDir, diskDir, vmDir)
 	}
 
