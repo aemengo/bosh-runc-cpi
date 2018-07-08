@@ -9,6 +9,8 @@ import (
 	rc "github.com/aemengo/bosh-containerd-cpi/runc"
 	"github.com/aemengo/bosh-containerd-cpi/pb"
 	"github.com/aemengo/bosh-containerd-cpi/service"
+	"os/signal"
+	"syscall"
 )
 
 var logger *log.Logger
@@ -32,12 +34,21 @@ func main() {
 	expectNoError(err)
 
 	s := grpc.NewServer()
-	runc := rc.New()
+	pb.RegisterCPIDServer(s, service.New(config, rc.New(), logger))
 
-	pb.RegisterCPIDServer(s, service.New(config, runc, logger))
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGTERM, syscall.SIGKILL)
+	go killServerWhenStopped(sigs, s, logger)
 
+	logger.Println("Initializing bosh-linuxkit-cpid...")
 	err = s.Serve(lis)
 	expectNoError(err)
+}
+
+func killServerWhenStopped(sigs chan os.Signal, server *grpc.Server, logger *log.Logger) {
+	<-sigs
+	logger.Println("Shutting down bosh-linuxkit-cpid...")
+	server.Stop()
 }
 
 func expectNoError(err error) {
