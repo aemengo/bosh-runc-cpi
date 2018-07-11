@@ -2,13 +2,13 @@ package service
 
 import (
 	"context"
-	"github.com/aemengo/bosh-containerd-cpi/pb"
-	"os"
-	"text/template"
-	"github.com/satori/go.uuid"
-	"path/filepath"
 	"fmt"
-	"github.com/aemengo/bosh-containerd-cpi/utils"
+	"github.com/aemengo/bosh-containerd-cpi/pb"
+	"github.com/mholt/archiver"
+	"github.com/satori/go.uuid"
+	"os"
+	"path/filepath"
+	"text/template"
 )
 
 type containerOpts struct {
@@ -29,7 +29,7 @@ func (s *Service) CreateVM(ctx context.Context, req *pb.CreateVMOpts) (*pb.IDPar
 		return nil, fmt.Errorf("failed to make rootfs: %s", err)
 	}
 
-	err = utils.RunCommand("/bin/sh", "-c", fmt.Sprintf("tar -O -xzf %s image | tar -xzf - -C %s", stemcellPath, rootFsPath))
+	err = archiver.TarGz.Open(stemcellPath, rootFsPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to make rootfs: %s", err)
 	}
