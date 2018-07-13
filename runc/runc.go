@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os/exec"
+	"github.com/aemengo/bosh-containerd-cpi/utils"
 )
 
 type Runc struct {
@@ -17,7 +18,7 @@ func New() *Runc {
 }
 
 func (r *Runc) Run(id, bundlePath string) error {
-	return exec.Command(r.command, "run", "--bundle", bundlePath, "--detach", id).Run()
+	return utils.RunCommand(r.command, "run", "--bundle", bundlePath, "--detach", id)
 }
 
 func (r *Runc) HasContainer(id string) (bool, error) {

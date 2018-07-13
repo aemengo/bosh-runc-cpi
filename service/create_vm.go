@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/aemengo/bosh-containerd-cpi/pb"
-	"github.com/mholt/archiver"
 	"github.com/satori/go.uuid"
 	"os"
 	"path/filepath"
 	"text/template"
+	"github.com/aemengo/bosh-containerd-cpi/utils"
 )
 
 type containerOpts struct {
@@ -29,7 +29,7 @@ func (s *Service) CreateVM(ctx context.Context, req *pb.CreateVMOpts) (*pb.IDPar
 		return nil, fmt.Errorf("failed to make rootfs: %s", err)
 	}
 
-	err = archiver.TarGz.Open(stemcellPath, rootFsPath)
+	err = utils.RunCommand("tar", "-xzf", stemcellPath, "-C", rootFsPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to make rootfs: %s", err)
 	}
