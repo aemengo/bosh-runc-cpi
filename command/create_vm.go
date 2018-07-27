@@ -6,6 +6,7 @@ import (
 	"github.com/aemengo/bosh-containerd-cpi/pb"
 	"context"
 	"errors"
+	"github.com/satori/go.uuid"
 )
 
 type createVM struct {
@@ -37,7 +38,10 @@ func (c *createVM) Run() bosh.Response {
 		return bosh.CPIError(c.logPrefix, errors.New("invalid stemcell id submitted"))
 	}
 
-	id, err := c.CreateVM(c.ctx, &pb.CreateVMOpts{StemcellID: stemcellID})
+	agentUUID := uuid.NewV4().String()
+	agentSettings := bosh.ConvertAgentSettings(agentUUID, c.arguments, c.config)
+
+	id, err := c.CreateVM(c.ctx, &pb.CreateVMOpts{StemcellID: stemcellID, AgentSettings: agentSettings})
 	if err != nil {
 		return bosh.CloudError(c.logPrefix, err)
 	}

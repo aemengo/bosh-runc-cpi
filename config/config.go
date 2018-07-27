@@ -14,6 +14,18 @@ type Config struct {
 	VMDir          string `yaml:"vm_dir"`
 	NetworkType    string `yaml:"network_type"`
 	NetworkAddress string `yaml:"address"`
+	Agent          Agent  `yaml:"agent"`
+}
+
+type Agent struct {
+	Mbus      string    `yaml:"mbus"`
+	NTP       []string  `yaml:"ntp"`
+	Blobstore Blobstore `yaml:"blobstore"`
+}
+
+type Blobstore struct {
+	Provider string                 `yaml:"provider"`
+	Options  map[string]interface{} `yaml:"options"`
 }
 
 func New(configPath string) (Config, error) {

@@ -10,6 +10,7 @@ import (
 	cmd "github.com/aemengo/bosh-containerd-cpi/command"
 	"google.golang.org/grpc"
 	"github.com/aemengo/bosh-containerd-cpi/pb"
+	"io/ioutil"
 )
 
 func main() {
@@ -27,9 +28,12 @@ func main() {
 					  DirectorUUID string `json:"director_uuid"`
 				  } `json:"context"`
 	}
+contents, _ := ioutil.ReadAll(os.Stdin)
 
-	err = json.NewDecoder(os.Stdin).Decode(&args)
+	err = json.Unmarshal(contents, &args)
 	expectNoError(err)
+
+ioutil.WriteFile("/tmp/bosh-cpi"+args.Method, contents, 0600)
 
 	conn, err := grpc.Dial(config.ServerAddr(), grpc.WithInsecure())
 	expectNoError(err)

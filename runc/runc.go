@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os/exec"
-	"github.com/aemengo/bosh-containerd-cpi/utils"
 )
 
 type Runc struct {
@@ -17,8 +16,13 @@ func New() *Runc {
 	}
 }
 
-func (r *Runc) Run(id, bundlePath string) error {
-	return utils.RunCommand(r.command, "run", "--bundle", bundlePath, "--detach", id)
+func (r *Runc) Create(id, bundlePath string) error {
+	return exec.Command(r.command, "create", "--bundle", bundlePath, id).Run()
+}
+
+// stdout/stderr cannot be extracted or the command will hang
+func (r *Runc) Start(id string) error {
+	return exec.Command(r.command, "start", id).Run()
 }
 
 func (r *Runc) HasContainer(id string) (bool, error) {

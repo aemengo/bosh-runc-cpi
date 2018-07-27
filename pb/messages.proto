@@ -15,6 +15,7 @@ service CPID {
 
 message CreateVMOpts {
   string stemcellID = 1;
+  bytes agentSettings = 2;
 }
 
 message DataParcel {

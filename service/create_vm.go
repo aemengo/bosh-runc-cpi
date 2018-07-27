@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/aemengo/bosh-containerd-cpi/pb"
+	"github.com/aemengo/bosh-containerd-cpi/utils"
 	"github.com/satori/go.uuid"
+	"io/ioutil"
 	"os"
 	"path/filepath"
-	"text/template"
-	"github.com/aemengo/bosh-containerd-cpi/utils"
 )
 
 type containerOpts struct {
@@ -17,11 +17,14 @@ type containerOpts struct {
 
 func (s *Service) CreateVM(ctx context.Context, req *pb.CreateVMOpts) (*pb.IDParcel, error) {
 	var (
-		id           = uuid.NewV4().String()
-		vmPath       = filepath.Join(s.config.VMDir, id)
-		rootFsPath   = filepath.Join(vmPath, "rootfs")
-		specPath     = filepath.Join(vmPath, "config.json")
-		stemcellPath = filepath.Join(s.config.StemcellDir, req.StemcellID)
+		id                = uuid.NewV4().String()
+		vmPath            = filepath.Join(s.config.VMDir, id)
+		rootFsPath        = filepath.Join(vmPath, "rootfs")
+		workDirPath       = filepath.Join(vmPath, "workdir")
+		upperDirPath      = filepath.Join(vmPath, "upperdir")
+		specPath          = filepath.Join(vmPath, "config.json")
+		stemcellPath      = filepath.Join(s.config.StemcellDir, req.StemcellID)
+		agentSettingsPath = filepath.Join(rootFsPath, "var", "vcap", "bosh", "warden-cpi-agent-env.json")
 	)
 
 	err := os.MkdirAll(rootFsPath, os.ModePerm)
@@ -29,42 +32,50 @@ func (s *Service) CreateVM(ctx context.Context, req *pb.CreateVMOpts) (*pb.IDPar
 		return nil, fmt.Errorf("failed to make rootfs: %s", err)
 	}
 
-	err = utils.RunCommand("tar", "-xzf", stemcellPath, "-C", rootFsPath)
+	err = os.MkdirAll(upperDirPath, os.ModePerm)
+	if err != nil {
+		return nil, fmt.Errorf("failed to make upperdir: %s", err)
+	}
+
+	err = os.MkdirAll(workDirPath, os.ModePerm)
+	if err != nil {
+		return nil, fmt.Errorf("failed to make workdir: %s", err)
+	}
+
+	err = utils.RunCommand("mount",
+		"-t", "overlay",
+		"-o", fmt.Sprintf("lowerdir=%s,upperdir=%s,workdir=%s", stemcellPath, upperDirPath, workDirPath),
+		"overlay",
+		rootFsPath,
+	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to make rootfs: %s", err)
 	}
 
-	f, err := os.Create(specPath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to write container spec: %s", err)
-	}
-	defer f.Close()
-
-	err = s.writeContainerSpec(f, containerOpts{ID: id})
+	err = ioutil.WriteFile(specPath, []byte(containerSpec), 0666)
 	if err != nil {
 		return nil, fmt.Errorf("failed to write container spec: %s", err)
 	}
 
-	err = s.runc.Run(id, vmPath)
+	err = ioutil.WriteFile(agentSettingsPath, req.AgentSettings, 0666)
+	if err != nil {
+		return nil, fmt.Errorf("failed to write agent settings: %s", err)
+	}
+
+	err = s.runc.Create(id, vmPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create container: %s", err)
+	}
+
+	err = s.runc.Start(id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to start container: %s", err)
 	}
 
 	return &pb.IDParcel{Value: id}, nil
 }
 
-func (s *Service) writeContainerSpec(f *os.File, opts containerOpts) error {
-	//TODO read config from json
-	//t, err := template.New(opts.ID).ParseFiles("./config.json")
-	t, err := template.New(opts.ID).Parse(thing)
-	if err != nil {
-		return err
-	}
-
-	return t.Execute(f, opts)
-}
-
-var thing = `{
+var containerSpec = `{
 	"ociVersion": "1.0.0",
 	"process": {
 		"terminal": false,
@@ -73,39 +84,213 @@ var thing = `{
 			"gid": 0
 		},
 		"args": [
-			"sleep",
-		    "infinity"
+		    "/usr/sbin/runsvdir-start"
 		],
 		"env": [
-			"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+			"PATH=/var/vcap/bosh/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
 			"TERM=xterm"
 		],
 		"cwd": "/",
 		"capabilities": {
 			"bounding": [
-				"CAP_AUDIT_WRITE",
-				"CAP_KILL",
-				"CAP_NET_BIND_SERVICE"
+              "CAP_AUDIT_CONTROL",
+              "CAP_AUDIT_READ",
+              "CAP_AUDIT_WRITE",
+              "CAP_BLOCK_SUSPEND",
+              "CAP_CHOWN",
+              "CAP_DAC_OVERRIDE",
+              "CAP_DAC_READ_SEARCH",
+              "CAP_FOWNER",
+              "CAP_FSETID",
+              "CAP_IPC_LOCK",
+              "CAP_IPC_OWNER",
+              "CAP_KILL",
+              "CAP_LEASE",
+              "CAP_LINUX_IMMUTABLE",
+              "CAP_MAC_ADMIN",
+              "CAP_MAC_OVERRIDE",
+              "CAP_MKNOD",
+              "CAP_NET_ADMIN",
+              "CAP_NET_BIND_SERVICE",
+              "CAP_NET_BROADCAST",
+              "CAP_NET_RAW",
+              "CAP_SETGID",
+              "CAP_SETFCAP",
+              "CAP_SETPCAP",
+              "CAP_SETUID",
+              "CAP_SYS_ADMIN",
+              "CAP_SYS_BOOT",
+              "CAP_SYS_CHROOT",
+              "CAP_SYS_MODULE",
+              "CAP_SYS_NICE",
+              "CAP_SYS_PACCT",
+              "CAP_SYS_PTRACE",
+              "CAP_SYS_RAWIO",
+              "CAP_SYS_RESOURCE",
+              "CAP_SYS_TIME",
+              "CAP_SYS_TTY_CONFIG",
+              "CAP_SYSLOG",
+              "CAP_WAKE_ALARM"
 			],
 			"effective": [
-				"CAP_AUDIT_WRITE",
-				"CAP_KILL",
-				"CAP_NET_BIND_SERVICE"
+              "CAP_AUDIT_CONTROL",
+              "CAP_AUDIT_READ",
+              "CAP_AUDIT_WRITE",
+              "CAP_BLOCK_SUSPEND",
+              "CAP_CHOWN",
+              "CAP_DAC_OVERRIDE",
+              "CAP_DAC_READ_SEARCH",
+              "CAP_FOWNER",
+              "CAP_FSETID",
+              "CAP_IPC_LOCK",
+              "CAP_IPC_OWNER",
+              "CAP_KILL",
+              "CAP_LEASE",
+              "CAP_LINUX_IMMUTABLE",
+              "CAP_MAC_ADMIN",
+              "CAP_MAC_OVERRIDE",
+              "CAP_MKNOD",
+              "CAP_NET_ADMIN",
+              "CAP_NET_BIND_SERVICE",
+              "CAP_NET_BROADCAST",
+              "CAP_NET_RAW",
+              "CAP_SETGID",
+              "CAP_SETFCAP",
+              "CAP_SETPCAP",
+              "CAP_SETUID",
+              "CAP_SYS_ADMIN",
+              "CAP_SYS_BOOT",
+              "CAP_SYS_CHROOT",
+              "CAP_SYS_MODULE",
+              "CAP_SYS_NICE",
+              "CAP_SYS_PACCT",
+              "CAP_SYS_PTRACE",
+              "CAP_SYS_RAWIO",
+              "CAP_SYS_RESOURCE",
+              "CAP_SYS_TIME",
+              "CAP_SYS_TTY_CONFIG",
+              "CAP_SYSLOG",
+              "CAP_WAKE_ALARM"
 			],
 			"inheritable": [
-				"CAP_AUDIT_WRITE",
-				"CAP_KILL",
-				"CAP_NET_BIND_SERVICE"
+              "CAP_AUDIT_CONTROL",
+              "CAP_AUDIT_READ",
+              "CAP_AUDIT_WRITE",
+              "CAP_BLOCK_SUSPEND",
+              "CAP_CHOWN",
+              "CAP_DAC_OVERRIDE",
+              "CAP_DAC_READ_SEARCH",
+              "CAP_FOWNER",
+              "CAP_FSETID",
+              "CAP_IPC_LOCK",
+              "CAP_IPC_OWNER",
+              "CAP_KILL",
+              "CAP_LEASE",
+              "CAP_LINUX_IMMUTABLE",
+              "CAP_MAC_ADMIN",
+              "CAP_MAC_OVERRIDE",
+              "CAP_MKNOD",
+              "CAP_NET_ADMIN",
+              "CAP_NET_BIND_SERVICE",
+              "CAP_NET_BROADCAST",
+              "CAP_NET_RAW",
+              "CAP_SETGID",
+              "CAP_SETFCAP",
+              "CAP_SETPCAP",
+              "CAP_SETUID",
+              "CAP_SYS_ADMIN",
+              "CAP_SYS_BOOT",
+              "CAP_SYS_CHROOT",
+              "CAP_SYS_MODULE",
+              "CAP_SYS_NICE",
+              "CAP_SYS_PACCT",
+              "CAP_SYS_PTRACE",
+              "CAP_SYS_RAWIO",
+              "CAP_SYS_RESOURCE",
+              "CAP_SYS_TIME",
+              "CAP_SYS_TTY_CONFIG",
+              "CAP_SYSLOG",
+              "CAP_WAKE_ALARM"
 			],
 			"permitted": [
-				"CAP_AUDIT_WRITE",
-				"CAP_KILL",
-				"CAP_NET_BIND_SERVICE"
+              "CAP_AUDIT_CONTROL",
+              "CAP_AUDIT_READ",
+              "CAP_AUDIT_WRITE",
+              "CAP_BLOCK_SUSPEND",
+              "CAP_CHOWN",
+              "CAP_DAC_OVERRIDE",
+              "CAP_DAC_READ_SEARCH",
+              "CAP_FOWNER",
+              "CAP_FSETID",
+              "CAP_IPC_LOCK",
+              "CAP_IPC_OWNER",
+              "CAP_KILL",
+              "CAP_LEASE",
+              "CAP_LINUX_IMMUTABLE",
+              "CAP_MAC_ADMIN",
+              "CAP_MAC_OVERRIDE",
+              "CAP_MKNOD",
+              "CAP_NET_ADMIN",
+              "CAP_NET_BIND_SERVICE",
+              "CAP_NET_BROADCAST",
+              "CAP_NET_RAW",
+              "CAP_SETGID",
+              "CAP_SETFCAP",
+              "CAP_SETPCAP",
+              "CAP_SETUID",
+              "CAP_SYS_ADMIN",
+              "CAP_SYS_BOOT",
+              "CAP_SYS_CHROOT",
+              "CAP_SYS_MODULE",
+              "CAP_SYS_NICE",
+              "CAP_SYS_PACCT",
+              "CAP_SYS_PTRACE",
+              "CAP_SYS_RAWIO",
+              "CAP_SYS_RESOURCE",
+              "CAP_SYS_TIME",
+              "CAP_SYS_TTY_CONFIG",
+              "CAP_SYSLOG",
+              "CAP_WAKE_ALARM"
 			],
 			"ambient": [
-				"CAP_AUDIT_WRITE",
-				"CAP_KILL",
-				"CAP_NET_BIND_SERVICE"
+              "CAP_AUDIT_CONTROL",
+              "CAP_AUDIT_READ",
+              "CAP_AUDIT_WRITE",
+              "CAP_BLOCK_SUSPEND",
+              "CAP_CHOWN",
+              "CAP_DAC_OVERRIDE",
+              "CAP_DAC_READ_SEARCH",
+              "CAP_FOWNER",
+              "CAP_FSETID",
+              "CAP_IPC_LOCK",
+              "CAP_IPC_OWNER",
+              "CAP_KILL",
+              "CAP_LEASE",
+              "CAP_LINUX_IMMUTABLE",
+              "CAP_MAC_ADMIN",
+              "CAP_MAC_OVERRIDE",
+              "CAP_MKNOD",
+              "CAP_NET_ADMIN",
+              "CAP_NET_BIND_SERVICE",
+              "CAP_NET_BROADCAST",
+              "CAP_NET_RAW",
+              "CAP_SETGID",
+              "CAP_SETFCAP",
+              "CAP_SETPCAP",
+              "CAP_SETUID",
+              "CAP_SYS_ADMIN",
+              "CAP_SYS_BOOT",
+              "CAP_SYS_CHROOT",
+              "CAP_SYS_MODULE",
+              "CAP_SYS_NICE",
+              "CAP_SYS_PACCT",
+              "CAP_SYS_PTRACE",
+              "CAP_SYS_RAWIO",
+              "CAP_SYS_RESOURCE",
+              "CAP_SYS_TIME",
+              "CAP_SYS_TTY_CONFIG",
+              "CAP_SYSLOG",
+              "CAP_WAKE_ALARM"
 			]
 		},
 		"rlimits": [
@@ -119,7 +304,7 @@ var thing = `{
 	},
 	"root": {
 		"path": "rootfs",
-		"readonly": true
+		"readonly": false
 	},
 	"hostname": "runc",
 	"mounts": [
