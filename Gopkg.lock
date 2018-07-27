@@ -2,17 +2,107 @@
 
 
 [[projects]]
-  branch = "master"
-  name = "github.com/dsnet/compress"
+  name = "github.com/Microsoft/go-winio"
+  packages = ["."]
+  revision = "67921128fb397dd80339870d2193d6b1e6856fd4"
+  version = "v0.4.8"
+
+[[projects]]
+  name = "github.com/Microsoft/hcsshim"
+  packages = ["."]
+  revision = "800683ae704ac360b2f3f47fa88f3a6c8c9091b5"
+  version = "v0.6.11"
+
+[[projects]]
+  name = "github.com/containerd/containerd"
   packages = [
     ".",
-    "bzip2",
-    "bzip2/internal/sais",
-    "internal",
-    "internal/errors",
-    "internal/prefix"
+    "api/services/containers/v1",
+    "api/services/content/v1",
+    "api/services/diff/v1",
+    "api/services/events/v1",
+    "api/services/images/v1",
+    "api/services/introspection/v1",
+    "api/services/leases/v1",
+    "api/services/namespaces/v1",
+    "api/services/snapshots/v1",
+    "api/services/tasks/v1",
+    "api/services/version/v1",
+    "api/types",
+    "api/types/task",
+    "cio",
+    "containers",
+    "content",
+    "defaults",
+    "dialer",
+    "diff",
+    "errdefs",
+    "events",
+    "events/exchange",
+    "filters",
+    "identifiers",
+    "images",
+    "leases",
+    "linux/runctypes",
+    "log",
+    "mount",
+    "namespaces",
+    "oci",
+    "platforms",
+    "plugin",
+    "reference",
+    "remotes",
+    "remotes/docker",
+    "remotes/docker/schema1",
+    "rootfs",
+    "snapshots"
   ]
-  revision = "cc9eb1d7ad760af14e8f918698f745e80377af4f"
+  revision = "d64c661f1d51c48782c9cec8fda7604785f93587"
+  version = "v1.1.1"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/containerd/continuity"
+  packages = [
+    "fs",
+    "syscallx",
+    "sysx"
+  ]
+  revision = "0377f7d767206f3a9e8881d0f02267b0d89c7a62"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/containerd/fifo"
+  packages = ["."]
+  revision = "3d5202aec260678c48179c56f40e6f38a095738c"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/containerd/typeurl"
+  packages = ["."]
+  revision = "a93fcdb778cd272c6e9b3028b2f42d813e785d40"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/docker/go-events"
+  packages = ["."]
+  revision = "9461782956ad83b30282bf90e31fa6a70c255ba9"
+
+[[projects]]
+  name = "github.com/gogo/googleapis"
+  packages = ["google/rpc"]
+  revision = "08a7655d27152912db7aaf4f983275eaf8d128ef"
+  version = "v1.0.0"
+
+[[projects]]
+  name = "github.com/gogo/protobuf"
+  packages = [
+    "proto",
+    "sortkeys",
+    "types"
+  ]
+  revision = "1adfc126b41513cc696b209667c8656ea7aac67c"
+  version = "v1.0.0"
 
 [[projects]]
   name = "github.com/golang/protobuf"
@@ -25,18 +115,6 @@
   ]
   revision = "b4deda0973fb4c70b50d226b1af49f3da59f5265"
   version = "v1.1.0"
-
-[[projects]]
-  name = "github.com/mholt/archiver"
-  packages = ["."]
-  revision = "cdc68dd1f170b8dfc1a0d2231b5bb0967ed67006"
-  version = "v2.0"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/nwaples/rardecode"
-  packages = ["."]
-  revision = "e06696f847aeda6f39a8f0b7cdff193b7690aef6"
 
 [[projects]]
   name = "github.com/onsi/ginkgo"
@@ -85,27 +163,69 @@
   version = "v1.4.0"
 
 [[projects]]
+  name = "github.com/opencontainers/go-digest"
+  packages = ["."]
+  revision = "279bed98673dd5bef374d3b6e4b09e2af76183bf"
+  version = "v1.0.0-rc1"
+
+[[projects]]
+  name = "github.com/opencontainers/image-spec"
+  packages = [
+    "identity",
+    "specs-go",
+    "specs-go/v1"
+  ]
+  revision = "d60099175f88c47cd379c4738d158884749ed235"
+  version = "v1.0.1"
+
+[[projects]]
+  name = "github.com/opencontainers/runc"
+  packages = ["libcontainer/user"]
+  revision = "baf6536d6259209c3edfa2b22237af82942d3dfa"
+  version = "v0.1.1"
+
+[[projects]]
+  name = "github.com/opencontainers/runtime-spec"
+  packages = ["specs-go"]
+  revision = "4e3b9264a330d094b0386c3703c5f379119711e8"
+  version = "v1.0.1"
+
+[[projects]]
+  name = "github.com/pkg/errors"
+  packages = ["."]
+  revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
+  version = "v0.8.0"
+
+[[projects]]
   name = "github.com/satori/go.uuid"
   packages = ["."]
   revision = "f58768cc1a7a7e77a3bd49e98cdd21419399b6a3"
   version = "v1.2.0"
 
 [[projects]]
-  name = "github.com/ulikunitz/xz"
-  packages = [
-    ".",
-    "internal/hash",
-    "internal/xlog",
-    "lzma"
-  ]
-  revision = "0c6b41e72360850ca4f98dc341fd999726ea007f"
-  version = "v0.5.4"
+  name = "github.com/sirupsen/logrus"
+  packages = ["."]
+  revision = "c155da19408a8799da419ed3eeb0cb5db0ad5dbc"
+  version = "v1.0.5"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/syndtr/gocapability"
+  packages = ["capability"]
+  revision = "33e07d32887e1e06b7c025f27ce52f62c7990bc0"
+
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/crypto"
+  packages = ["ssh/terminal"]
+  revision = "a49355c7e3f8fe157a85be2f77e6e269a0f89602"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/net"
   packages = [
     "context",
+    "context/ctxhttp",
     "html",
     "html/atom",
     "html/charset",
@@ -120,8 +240,17 @@
 
 [[projects]]
   branch = "master"
+  name = "golang.org/x/sync"
+  packages = ["errgroup"]
+  revision = "1d60e4601c6fd243af51cc01ddf169918a5407ca"
+
+[[projects]]
+  branch = "master"
   name = "golang.org/x/sys"
-  packages = ["unix"]
+  packages = [
+    "unix",
+    "windows"
+  ]
   revision = "63fc586f45fe72d95d5240a5d5eb95e6503907d3"
 
 [[projects]]
@@ -176,6 +305,7 @@
     "encoding",
     "encoding/proto",
     "grpclog",
+    "health/grpc_health_v1",
     "internal",
     "internal/backoff",
     "internal/channelz",
@@ -204,6 +334,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "463c3b33ef8ab1a690431c7f7adb65b6dfd3aa30a91174c212a6e900bc9245a3"
+  inputs-digest = "5d9de1d8fbef234c4f08cd98d8fd46b591db8e98e824a7ce7fba8dfd4aa07bd5"
   solver-name = "gps-cdcl"
   solver-version = 1
