@@ -16,8 +16,8 @@ func New() *Runc {
 	}
 }
 
-func (r *Runc) Create(id, bundlePath string) error {
-	return exec.Command(r.command, "create", "--bundle", bundlePath, id).Run()
+func (r *Runc) Create(id, bundlePath, pidPath string) error {
+	return exec.Command(r.command, "create", "--bundle", bundlePath, "--pid-file", pidPath, id).Run()
 }
 
 // stdout/stderr cannot be extracted or the command will hang

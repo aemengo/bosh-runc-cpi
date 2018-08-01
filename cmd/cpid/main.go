@@ -7,6 +7,7 @@ import (
 	"google.golang.org/grpc"
 	cfg "github.com/aemengo/bosh-containerd-cpi/config"
 	rc "github.com/aemengo/bosh-containerd-cpi/runc"
+	nt "github.com/aemengo/bosh-containerd-cpi/network"
 	"github.com/aemengo/bosh-containerd-cpi/pb"
 	"github.com/aemengo/bosh-containerd-cpi/service"
 	"os/signal"
@@ -32,11 +33,14 @@ func main() {
 	expectNoError(os.MkdirAll(config.DiskDir, os.ModePerm))
 	expectNoError(prepareUnixSocket(config))
 
+	network, err := nt.New()
+	expectNoError(err)
+
 	lis, err := net.Listen(config.NetworkType, config.NetworkAddress)
 	expectNoError(err)
 
 	s := grpc.NewServer()
-	pb.RegisterCPIDServer(s, service.New(config, rc.New(), logger))
+	pb.RegisterCPIDServer(s, service.New(config, rc.New(), network, logger))
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGTERM, syscall.SIGKILL)

@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/aemengo/bosh-containerd-cpi/pb"
 	"github.com/aemengo/bosh-containerd-cpi/utils"
@@ -23,6 +25,7 @@ func (s *Service) CreateVM(ctx context.Context, req *pb.CreateVMOpts) (*pb.IDPar
 		workDirPath       = filepath.Join(vmPath, "workdir")
 		upperDirPath      = filepath.Join(vmPath, "upperdir")
 		specPath          = filepath.Join(vmPath, "config.json")
+		pidPath           = filepath.Join(vmPath, "pid")
 		stemcellPath      = filepath.Join(s.config.StemcellDir, req.StemcellID)
 		agentSettingsPath = filepath.Join(rootFsPath, "var", "vcap", "bosh", "warden-cpi-agent-env.json")
 	)
@@ -62,17 +65,50 @@ func (s *Service) CreateVM(ctx context.Context, req *pb.CreateVMOpts) (*pb.IDPar
 		return nil, fmt.Errorf("failed to write agent settings: %s", err)
 	}
 
-	err = s.runc.Create(id, vmPath)
+	err = s.runc.Create(id, vmPath, pidPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create container: %s", err)
 	}
 
+	ip, mask, gatewayIP, err := s.extractNetValues(req.AgentSettings)
+	if err != nil {
+		s.DeleteVM(ctx, &pb.IDParcel{Value: id})
+		return nil, fmt.Errorf("failed to extract network values: %s", err)
+	}
+
+	err = s.configureNetworking(vmPath, pidPath, ip, mask, gatewayIP)
+	if err != nil {
+		s.DeleteVM(ctx, &pb.IDParcel{Value: id})
+		return nil, fmt.Errorf("failed to configure networker: %s", err)
+	}
+
 	err = s.runc.Start(id)
 	if err != nil {
+		s.DeleteVM(ctx, &pb.IDParcel{Value: id})
 		return nil, fmt.Errorf("failed to start container: %s", err)
 	}
 
 	return &pb.IDParcel{Value: id}, nil
+}
+
+func (s *Service) extractNetValues(agentSettings []byte) (string, string, string, error) {
+	var values struct {
+		Networks map[string]map[string]interface{} `json:"networks"`
+	}
+
+	err := json.Unmarshal(agentSettings, &values)
+	if err != nil {
+		return "", "", "", err
+	}
+
+	for _, v := range values.Networks {
+		ip := v["ip"].(string)
+		mask := v["netmask"].(string)
+		gateway := v["gateway"].(string)
+		return ip, mask, gateway, nil
+	}
+
+	return "", "", "", errors.New("unable to extract network values from provided agent settings")
 }
 
 var containerSpec = `{
