@@ -14,6 +14,12 @@
   version = "v0.6.11"
 
 [[projects]]
+  name = "github.com/boltdb/bolt"
+  packages = ["."]
+  revision = "2f1ce7a837dcb8da3ec595b1dac9d0632f0f99e8"
+  version = "v1.3.1"
+
+[[projects]]
   name = "github.com/containerd/containerd"
   packages = [
     ".",
@@ -87,6 +93,42 @@
   name = "github.com/docker/go-events"
   packages = ["."]
   revision = "9461782956ad83b30282bf90e31fa6a70c255ba9"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/docker/libnetwork"
+  packages = ["iptables"]
+  revision = "9ffeaf7d8b64fa0eb64cc27835dc1a5a90328024"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/erikh/ping"
+  packages = ["."]
+  revision = "d731d249e12a103e22d5d4cdf41bf37062623ea4"
+
+[[projects]]
+  name = "github.com/genuinetools/netns"
+  packages = [
+    ".",
+    "bridge",
+    "netutils",
+    "network",
+    "version"
+  ]
+  revision = "48ea1ee8972aeb7b390dfc577f140f5d5face752"
+  version = "v0.5.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/genuinetools/pkg"
+  packages = ["cli"]
+  revision = "4038376dadd53f913de41663feae408ef23c8e8a"
+
+[[projects]]
+  name = "github.com/godbus/dbus"
+  packages = ["."]
+  revision = "a389bdde4dd695d414e47b755e95e72b7826432c"
+  version = "v4.1.0"
 
 [[projects]]
   name = "github.com/gogo/googleapis"
@@ -180,9 +222,12 @@
 
 [[projects]]
   name = "github.com/opencontainers/runc"
-  packages = ["libcontainer/user"]
-  revision = "baf6536d6259209c3edfa2b22237af82942d3dfa"
-  version = "v0.1.1"
+  packages = [
+    "libcontainer/configs",
+    "libcontainer/user"
+  ]
+  revision = "1a124e9c2da68c867ed2c4f4ff19f0cd95cda0cd"
+  version = "v0.0.8"
 
 [[projects]]
   name = "github.com/opencontainers/runtime-spec"
@@ -349,6 +394,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "4b9ccee6cb44b78433ce8b4e16ce8e67b878eea7f5988c494ed73b4688846679"
+  inputs-digest = "07e57f634e079f46c3c475afb0836cbd31c1689a4c865141d222e3f97d626fd8"
   solver-name = "gps-cdcl"
   solver-version = 1

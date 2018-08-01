@@ -48,3 +48,7 @@
 [[constraint]]
   branch = "master"
   name = "github.com/vishvananda/netns"
+
+[[constraint]]
+  name = "github.com/genuinetools/netns"
+  version = "0.5.0"
