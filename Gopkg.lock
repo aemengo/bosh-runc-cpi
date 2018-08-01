@@ -14,12 +14,6 @@
   version = "v0.6.11"
 
 [[projects]]
-  name = "github.com/boltdb/bolt"
-  packages = ["."]
-  revision = "2f1ce7a837dcb8da3ec595b1dac9d0632f0f99e8"
-  version = "v1.3.1"
-
-[[projects]]
   name = "github.com/containerd/containerd"
   packages = [
     ".",
@@ -101,28 +95,13 @@
   revision = "9ffeaf7d8b64fa0eb64cc27835dc1a5a90328024"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/erikh/ping"
-  packages = ["."]
-  revision = "d731d249e12a103e22d5d4cdf41bf37062623ea4"
-
-[[projects]]
   name = "github.com/genuinetools/netns"
   packages = [
-    ".",
     "bridge",
-    "netutils",
-    "network",
-    "version"
+    "netutils"
   ]
   revision = "48ea1ee8972aeb7b390dfc577f140f5d5face752"
   version = "v0.5.0"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/genuinetools/pkg"
-  packages = ["cli"]
-  revision = "4038376dadd53f913de41663feae408ef23c8e8a"
 
 [[projects]]
   name = "github.com/godbus/dbus"
@@ -222,10 +201,7 @@
 
 [[projects]]
   name = "github.com/opencontainers/runc"
-  packages = [
-    "libcontainer/configs",
-    "libcontainer/user"
-  ]
+  packages = ["libcontainer/user"]
   revision = "1a124e9c2da68c867ed2c4f4ff19f0cd95cda0cd"
   version = "v0.0.8"
 
@@ -394,6 +370,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "07e57f634e079f46c3c475afb0836cbd31c1689a4c865141d222e3f97d626fd8"
+  inputs-digest = "7b270750836631c75e26e556d41fd793eb7ff8df41b605420525f6f3e7dcc71a"
   solver-name = "gps-cdcl"
   solver-version = 1
