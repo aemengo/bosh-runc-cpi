@@ -20,7 +20,6 @@ func (r *Runc) Create(id, bundlePath, pidPath string) error {
 	return exec.Command(r.command, "create", "--bundle", bundlePath, "--pid-file", pidPath, id).Run()
 }
 
-// stdout/stderr cannot be extracted or the command will hang
 func (r *Runc) Start(id string) error {
 	return exec.Command(r.command, "start", id).Run()
 }

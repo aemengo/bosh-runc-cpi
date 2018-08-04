@@ -23,6 +23,8 @@ func New(ctx context.Context, cpidClient pb.CPIDClient, method string, arguments
 		return NewDeleteDisk(ctx, cpidClient, arguments, config)
 	case "has_disk":
 		return NewHasDisk(ctx, cpidClient, arguments, config)
+	case "attach_disk":
+		return NewAttachDisk(ctx, cpidClient, arguments, config)
 	case "create_vm":
 		return NewCreateVM(ctx, cpidClient, arguments, config)
 	case "delete_vm":
@@ -31,8 +33,8 @@ func New(ctx context.Context, cpidClient pb.CPIDClient, method string, arguments
 		return NewHasVM(ctx, cpidClient, arguments, config)
 	case "info":
 		return NewInfo()
-	case "set_vm_metadata":
-		return NewSetVMMetadata()
+	case "set_vm_metadata", "set_disk_metadata":
+		return NewNoOP()
 	default:
 		return NewUnimplemented(method)
 	}

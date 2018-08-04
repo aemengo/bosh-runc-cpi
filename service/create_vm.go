@@ -102,9 +102,9 @@ func (s *Service) extractNetValues(agentSettings []byte) (string, string, string
 	}
 
 	for _, v := range values.Networks {
-		ip := v["ip"].(string)
-		mask := v["netmask"].(string)
-		gateway := v["gateway"].(string)
+		ip, _ := v["ip"].(string)
+		mask, _ := v["netmask"].(string)
+		gateway, _ := v["gateway"].(string)
 		return ip, mask, gateway, nil
 	}
 
@@ -120,7 +120,9 @@ var containerSpec = `{
 			"gid": 0
 		},
 		"args": [
-		    "/usr/sbin/runsvdir-start"
+		    "bash",
+		    "-c",
+		    "umount /var/vcap/data/root_log; exec env -i /usr/sbin/runsvdir-start"
 		],
 		"env": [
 			"PATH=/var/vcap/bosh/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
