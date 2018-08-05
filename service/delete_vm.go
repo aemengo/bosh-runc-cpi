@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"github.com/aemengo/bosh-containerd-cpi/pb"
-	"github.com/aemengo/bosh-containerd-cpi/utils"
 	"github.com/vishvananda/netlink"
 	"io/ioutil"
 	"os"
@@ -13,13 +12,11 @@ import (
 func (s *Service) DeleteVM(ctx context.Context, req *pb.IDParcel) (*pb.Void, error) {
 	var (
 		vmPath      = filepath.Join(s.config.VMDir, req.Value)
-		rootFsPath  = filepath.Join(vmPath, "rootfs")
 		ethNamePath = filepath.Join(vmPath, "eth-name")
 	)
 
 	deleteVirtualInterfaceIfExists(ethNamePath)
 	s.runc.DeleteContainer(req.Value)
-	utils.RunCommand("umount", rootFsPath)
 	os.RemoveAll(vmPath)
 	return &pb.Void{}, nil
 }

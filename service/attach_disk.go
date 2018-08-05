@@ -2,11 +2,11 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/aemengo/bosh-containerd-cpi/pb"
-	"path/filepath"
-	"encoding/json"
 	"io/ioutil"
+	"path/filepath"
 )
 
 func (s *Service) AttachDisk(ctx context.Context, req *pb.AttachDisksOpts) (*pb.Void, error) {
@@ -16,12 +16,11 @@ func (s *Service) AttachDisk(ctx context.Context, req *pb.AttachDisksOpts) (*pb.
 		vmPath            = filepath.Join(s.config.VMDir, req.VmID)
 		pidPath           = filepath.Join(vmPath, "pid")
 		specPath          = filepath.Join(vmPath, "config.json")
-		agentSettingsPath = filepath.Join(vmPath, "rootfs", "var", "vcap", "bosh", "warden-cpi-agent-env.json")
-
+		agentSettingsPath = filepath.Join(vmPath, "warden-cpi-agent-env.json")
 	)
 	contents, err := ioutil.ReadFile(specPath)
 	if err != nil {
-		return nil,  fmt.Errorf("failed to read spec file: %s", err)
+		return nil, fmt.Errorf("failed to read spec file: %s", err)
 	}
 
 	var spec map[string]interface{}
@@ -30,11 +29,11 @@ func (s *Service) AttachDisk(ctx context.Context, req *pb.AttachDisksOpts) (*pb.
 		return nil, fmt.Errorf("failed to parse spec file: %s", err)
 	}
 
-	if mounts, ok := spec["mounts"].([]interface{}); ok  {
+	if mounts, ok := spec["mounts"].([]interface{}); ok {
 		spec["mounts"] = append(mounts, map[string]interface{}{
-			"source": diskPath,
+			"source":      diskPath,
 			"destination": persistentDiskDir,
-			"type":"bind",
+			"type":        "bind",
 			"options": []string{
 				"rw",
 				"rbind",
@@ -45,7 +44,7 @@ func (s *Service) AttachDisk(ctx context.Context, req *pb.AttachDisksOpts) (*pb.
 
 	agentContents, err := ioutil.ReadFile(agentSettingsPath)
 	if err != nil {
-		return nil,  fmt.Errorf("failed to read agent settings file: %s", err)
+		return nil, fmt.Errorf("failed to read agent settings file: %s", err)
 	}
 
 	var agentSettings map[string]interface{}
@@ -55,18 +54,17 @@ func (s *Service) AttachDisk(ctx context.Context, req *pb.AttachDisksOpts) (*pb.
 	}
 
 	agentSettings["disks"] = map[string]interface{}{
-		"system": "",
+		"system":    "",
 		"ephemeral": nil,
 		"persistent": map[string]interface{}{
-			req.DiskID : map[string]string{
-				"path" : persistentDiskDir,
+			req.DiskID: map[string]string{
+				"path": persistentDiskDir,
 			},
 		},
 	}
 
-	agentSettings["env"].(map[string]interface{})["persistent_disk_fs"] = "ext4"
-
 	s.runc.DeleteContainer(req.VmID)
+
 	newSpec, _ := json.Marshal(spec)
 	newAgentSettings, _ := json.Marshal(agentSettings)
 

@@ -6,16 +6,12 @@ import (
 	"errors"
 	"fmt"
 	"github.com/aemengo/bosh-containerd-cpi/pb"
-	"github.com/aemengo/bosh-containerd-cpi/utils"
 	"github.com/satori/go.uuid"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"text/template"
 )
-
-type containerOpts struct {
-	ID string
-}
 
 func (s *Service) CreateVM(ctx context.Context, req *pb.CreateVMOpts) (*pb.IDParcel, error) {
 	var (
@@ -27,7 +23,7 @@ func (s *Service) CreateVM(ctx context.Context, req *pb.CreateVMOpts) (*pb.IDPar
 		specPath          = filepath.Join(vmPath, "config.json")
 		pidPath           = filepath.Join(vmPath, "pid")
 		stemcellPath      = filepath.Join(s.config.StemcellDir, req.StemcellID)
-		agentSettingsPath = filepath.Join(rootFsPath, "var", "vcap", "bosh", "warden-cpi-agent-env.json")
+		agentSettingsPath = filepath.Join(vmPath, "warden-cpi-agent-env.json")
 	)
 
 	err := os.MkdirAll(rootFsPath, os.ModePerm)
@@ -45,24 +41,26 @@ func (s *Service) CreateVM(ctx context.Context, req *pb.CreateVMOpts) (*pb.IDPar
 		return nil, fmt.Errorf("failed to make workdir: %s", err)
 	}
 
-	err = utils.RunCommand("mount",
-		"-t", "overlay",
-		"-o", fmt.Sprintf("lowerdir=%s,upperdir=%s,workdir=%s", stemcellPath, upperDirPath, workDirPath),
-		"overlay",
-		rootFsPath,
-	)
-	if err != nil {
-		return nil, fmt.Errorf("failed to make rootfs: %s", err)
-	}
-
-	err = ioutil.WriteFile(specPath, []byte(containerSpec), 0666)
-	if err != nil {
-		return nil, fmt.Errorf("failed to write container spec: %s", err)
-	}
-
 	err = ioutil.WriteFile(agentSettingsPath, req.AgentSettings, 0666)
 	if err != nil {
 		return nil, fmt.Errorf("failed to write agent settings: %s", err)
+	}
+
+	f, err := os.Create(specPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to write container spec: %s", err)
+	}
+	defer f.Close()
+
+	err = s.writeContainerSpec(f, containerOpts{
+		ID:                id,
+		Lowerdir:          stemcellPath,
+		Upperdir:          upperDirPath,
+		Workdir:           workDirPath,
+		AgentSettingsPath: agentSettingsPath,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to write container spec: %s", err)
 	}
 
 	err = s.runc.Create(id, vmPath, pidPath)
@@ -109,6 +107,23 @@ func (s *Service) extractNetValues(agentSettings []byte) (string, string, string
 	}
 
 	return "", "", "", errors.New("unable to extract network values from provided agent settings")
+}
+
+type containerOpts struct {
+	ID                string
+	Lowerdir          string
+	Upperdir          string
+	Workdir           string
+	AgentSettingsPath string
+}
+
+func (s *Service) writeContainerSpec(f *os.File, opts containerOpts) error {
+	t, err := template.New(opts.ID).Parse(containerSpec)
+	if err != nil {
+		return err
+	}
+
+	return t.Execute(f, opts)
 }
 
 var containerSpec = `{
@@ -338,7 +353,7 @@ var containerSpec = `{
 				"soft": 1024
 			}
 		],
-		"noNewPrivileges": true
+		"noNewPrivileges": false
 	},
 	"root": {
 		"path": "rootfs",
@@ -346,6 +361,28 @@ var containerSpec = `{
 	},
 	"hostname": "runc",
 	"mounts": [
+	    {
+          "destination" : "/",
+          "source" : "overlay",
+          "type" : "overlay",
+          "options" : [
+          	 "suid",
+             "upperdir={{ .Upperdir }}",
+             "lowerdir={{ .Lowerdir }}",
+             "workdir={{ .Workdir }}"
+          ]
+        },
+	    {
+          "destination" : "/var/vcap/bosh/warden-cpi-agent-env.json",
+          "source" : "{{ .AgentSettingsPath }}",
+          "type" : "bind",
+          "options" : [
+            "mode=666",
+			"ro",
+			"rbind",
+			"rprivate"
+          ]
+        },
 		{
 			"destination": "/proc",
 			"type": "proc",
@@ -416,8 +453,7 @@ var containerSpec = `{
 				"nosuid",
 				"noexec",
 				"nodev",
-				"relatime",
-				"ro"
+				"relatime"
 			]
 		}
 	],
