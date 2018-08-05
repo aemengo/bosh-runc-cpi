@@ -137,7 +137,7 @@ var containerSpec = `{
 		"args": [
 		    "bash",
 		    "-c",
-		    "umount /var/vcap/data/root_log; exec env -i /usr/sbin/runsvdir-start"
+		    "umount /var/vcap/data/root_log; chmod 0777 /var/vcap/data; exec env -i /usr/sbin/runsvdir-start"
 		],
 		"env": [
 			"PATH=/var/vcap/bosh/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
