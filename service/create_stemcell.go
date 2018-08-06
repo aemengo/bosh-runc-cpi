@@ -22,6 +22,7 @@ func (s *Service) CreateStemcell(stream pb.CPID_CreateStemcellServer) error {
 		return fmt.Errorf("failed to create stemcell at path: %s: %s "+destPath, err)
 	}
 	defer f.Close()
+	defer os.RemoveAll(tarPath)
 
 	for {
 		data, err := stream.Recv()

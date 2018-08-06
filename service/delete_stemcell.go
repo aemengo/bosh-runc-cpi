@@ -8,12 +8,8 @@ import (
 )
 
 func (s *Service) DeleteStemcell(ctx context.Context, req *pb.IDParcel) (*pb.Void, error) {
-	var (
-		stemcellPath    = filepath.Join(s.config.StemcellDir, req.Value)
-		stemcellTarPath = stemcellPath + ".tgz"
-	)
+	stemcellPath := filepath.Join(s.config.StemcellDir, req.Value)
 
 	os.RemoveAll(stemcellPath)
-	os.RemoveAll(stemcellTarPath)
 	return &pb.Void{}, nil
 }
