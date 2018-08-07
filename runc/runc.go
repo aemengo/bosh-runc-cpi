@@ -17,6 +17,8 @@ func New() *Runc {
 	}
 }
 
+// stdout,stderr cannot be extracted from execution
+// or the command will hang indefinitely
 func (r *Runc) Create(id, bundlePath, pidPath string) error {
 	return exec.Command(r.command, "create", "--bundle", bundlePath, "--pid-file", pidPath, id).Run()
 }

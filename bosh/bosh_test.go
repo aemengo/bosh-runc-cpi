@@ -25,7 +25,7 @@ var _ = Describe("Bosh", func() {
 		}
 
 		var input = []interface{}{
-			"some-vm-guid",
+			"some-agent-guid",
 			"sc-5bd9284c-bb5d-4a4a-6564-1b5ecada5417",
 			map[string]interface{}{},
 			map[string]interface{}{
@@ -68,7 +68,7 @@ var _ = Describe("Bosh", func() {
 					},
 					"password": "some-password",
 					"group": "some-group",
-					"groups": []string{
+					"groups": []interface{}{
 						"bosh-lite",
 						"some-group-1",
 						"some-group-2",
@@ -78,13 +78,13 @@ var _ = Describe("Bosh", func() {
 		}
 
 		It("converts the input to json agent settings", func() {
-			settings := ConvertAgentSettings("some-agent-guid", input, config)
+			settings := ConvertAgentSettings(input, config)
 			Expect(settings).To(MatchJSON(`
 {
   "agent_id": "some-agent-guid",
   "vm": {
-    "name": "some-vm-guid",
-    "id": "some-vm-guid"
+    "id": "",
+    "name": ""
   },
   "mbus": "some-mbus-url",
   "ntp": ["some-ntp"],

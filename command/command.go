@@ -25,6 +25,8 @@ func New(ctx context.Context, cpidClient pb.CPIDClient, method string, arguments
 		return NewHasDisk(ctx, cpidClient, arguments, config)
 	case "attach_disk":
 		return NewAttachDisk(ctx, cpidClient, arguments, config)
+	case "detach_disk":
+		return NewDetachDisk(ctx, cpidClient, arguments, config)
 	case "create_vm":
 		return NewCreateVM(ctx, cpidClient, arguments, config)
 	case "delete_vm":

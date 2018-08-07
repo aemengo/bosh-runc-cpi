@@ -7,7 +7,6 @@ import (
 	"github.com/genuinetools/netns/bridge"
 	"net"
 	"runtime"
-	"github.com/aemengo/bosh-containerd-cpi/utils"
 )
 
 type Network struct {
@@ -16,27 +15,6 @@ type Network struct {
 
 func New() (*Network, error) {
 	br, err := bridge.Init(bridge.Opt{Name: "netns0", IPAddr: "10.0.0.1/16"})
-	if err != nil {
-		return nil, err
-	}
-
-	err = utils.RunCommand("sysctl", "-w", "net.ipv4.ip_forward=1")
-	if err != nil {
-		return nil, err
-	}
-
-	//iptable rules must go after bridge initialization to reassign
-	//the library's nat rule
-	err = utils.RunCommand("iptables", "--table", "nat", "--flush")
-	if err != nil {
-		return nil, err
-	}
-
-	err = utils.RunCommand("iptables",
-		"-t", "nat",
-		"-A", "POSTROUTING",
-		"-o", "enp0s2",
-		"-j", "MASQUERADE")
 	if err != nil {
 		return nil, err
 	}

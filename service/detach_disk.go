@@ -1,16 +1,15 @@
 package service
 
 import (
-	"context"
-	"fmt"
 	"github.com/aemengo/bosh-containerd-cpi/pb"
-	"io/ioutil"
+	"context"
 	"path/filepath"
+	"io/ioutil"
+	"fmt"
 )
 
-func (s *Service) AttachDisk(ctx context.Context, req *pb.DisksOpts) (*pb.Void, error) {
+func (s *Service) DetachDisk(ctx context.Context, req *pb.DisksOpts) (*pb.Void, error) {
 	var (
-		persistentDiskDir = "/persistent-disk"
 		diskPath          = filepath.Join(s.config.DiskDir, req.DiskID)
 		vmPath            = filepath.Join(s.config.VMDir, req.VmID)
 		pidPath           = filepath.Join(vmPath, "pid")
@@ -23,14 +22,14 @@ func (s *Service) AttachDisk(ctx context.Context, req *pb.DisksOpts) (*pb.Void, 
 		return nil, fmt.Errorf("failed to read spec file: %s", err)
 	}
 
-	spec = attachBindMount(spec, diskPath, persistentDiskDir)
+	spec = detachBindMount(spec, diskPath)
 
 	agentSettings, err := ioutil.ReadFile(agentSettingsPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read agent settings file: %s", err)
 	}
 
-	agentSettings = attachPersistentDisk(agentSettings, req.DiskID, persistentDiskDir)
+	agentSettings = detachPersistentDisk(agentSettings)
 
 	s.runc.DeleteContainer(req.VmID)
 

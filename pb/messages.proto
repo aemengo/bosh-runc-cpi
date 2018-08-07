@@ -7,7 +7,8 @@ service CPID {
   rpc DeleteStemcell (IDParcel) returns (Void);
   rpc DeleteDisk (IDParcel) returns (Void);
   rpc CreateDisk (ValueParcel) returns (IDParcel);
-  rpc AttachDisk (AttachDisksOpts) returns (Void);
+  rpc AttachDisk (DisksOpts) returns (Void);
+  rpc DetachDisk (DisksOpts) returns (Void);
   rpc HasDisk (IDParcel) returns (TruthParcel);
   rpc CreateVM (CreateVMOpts) returns (IDParcel);
   rpc DeleteVM (IDParcel) returns (Void);
@@ -17,9 +18,10 @@ service CPID {
 message CreateVMOpts {
   string stemcellID = 1;
   bytes agentSettings = 2;
+  string diskID = 3;
 }
 
-message AttachDisksOpts {
+message DisksOpts {
   string vmID = 1;
   string diskID = 2;
 }

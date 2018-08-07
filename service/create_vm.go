@@ -2,8 +2,6 @@ package service
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/aemengo/bosh-containerd-cpi/pb"
 	"github.com/satori/go.uuid"
@@ -16,6 +14,8 @@ import (
 func (s *Service) CreateVM(ctx context.Context, req *pb.CreateVMOpts) (*pb.IDParcel, error) {
 	var (
 		id                = uuid.NewV4().String()
+		diskPath          = ""
+		persistentDiskDir = "/persistent-disk"
 		vmPath            = filepath.Join(s.config.VMDir, id)
 		rootFsPath        = filepath.Join(vmPath, "rootfs")
 		workDirPath       = filepath.Join(vmPath, "workdir")
@@ -23,6 +23,7 @@ func (s *Service) CreateVM(ctx context.Context, req *pb.CreateVMOpts) (*pb.IDPar
 		specPath          = filepath.Join(vmPath, "config.json")
 		pidPath           = filepath.Join(vmPath, "pid")
 		stemcellPath      = filepath.Join(s.config.StemcellDir, req.StemcellID)
+		agentSettings     = attachVMID(req.AgentSettings, id)
 		agentSettingsPath = filepath.Join(vmPath, "warden-cpi-agent-env.json")
 	)
 
@@ -41,7 +42,11 @@ func (s *Service) CreateVM(ctx context.Context, req *pb.CreateVMOpts) (*pb.IDPar
 		return nil, fmt.Errorf("failed to make workdir: %s", err)
 	}
 
-	err = ioutil.WriteFile(agentSettingsPath, req.AgentSettings, 0666)
+	if req.DiskID != "" {
+		agentSettings = attachPersistentDisk(agentSettings, req.DiskID, persistentDiskDir)
+	}
+
+	err = ioutil.WriteFile(agentSettingsPath, agentSettings, 0666)
 	if err != nil {
 		return nil, fmt.Errorf("failed to write agent settings: %s", err)
 	}
@@ -52,12 +57,18 @@ func (s *Service) CreateVM(ctx context.Context, req *pb.CreateVMOpts) (*pb.IDPar
 	}
 	defer f.Close()
 
+	if req.DiskID != "" {
+		diskPath = filepath.Join(s.config.DiskDir, req.DiskID)
+	}
+
 	err = s.writeContainerSpec(f, containerOpts{
 		ID:                id,
 		Lowerdir:          stemcellPath,
 		Upperdir:          upperDirPath,
 		Workdir:           workDirPath,
 		AgentSettingsPath: agentSettingsPath,
+		DiskPath:          diskPath,
+		PersistentDiskDir: persistentDiskDir,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to write container spec: %s", err)
@@ -68,7 +79,7 @@ func (s *Service) CreateVM(ctx context.Context, req *pb.CreateVMOpts) (*pb.IDPar
 		return nil, fmt.Errorf("failed to create container: %s", err)
 	}
 
-	ip, mask, gatewayIP, err := s.extractNetValues(req.AgentSettings)
+	ip, mask, gatewayIP, err := extractNetValues(agentSettings)
 	if err != nil {
 		s.DeleteVM(ctx, &pb.IDParcel{Value: id})
 		return nil, fmt.Errorf("failed to extract network values: %s", err)
@@ -89,32 +100,14 @@ func (s *Service) CreateVM(ctx context.Context, req *pb.CreateVMOpts) (*pb.IDPar
 	return &pb.IDParcel{Value: id}, nil
 }
 
-func (s *Service) extractNetValues(agentSettings []byte) (string, string, string, error) {
-	var values struct {
-		Networks map[string]map[string]interface{} `json:"networks"`
-	}
-
-	err := json.Unmarshal(agentSettings, &values)
-	if err != nil {
-		return "", "", "", err
-	}
-
-	for _, v := range values.Networks {
-		ip, _ := v["ip"].(string)
-		mask, _ := v["netmask"].(string)
-		gateway, _ := v["gateway"].(string)
-		return ip, mask, gateway, nil
-	}
-
-	return "", "", "", errors.New("unable to extract network values from provided agent settings")
-}
-
 type containerOpts struct {
 	ID                string
 	Lowerdir          string
 	Upperdir          string
 	Workdir           string
 	AgentSettingsPath string
+	DiskPath          string
+	PersistentDiskDir string
 }
 
 func (s *Service) writeContainerSpec(f *os.File, opts containerOpts) error {
@@ -383,6 +376,18 @@ var containerSpec = `{
 			"rprivate"
           ]
         },
+{{if ne .DiskPath ""}}
+        {
+			"destination": "{{ .PersistentDiskDir }}",
+			"source":      "{{ .DiskPath }}",
+			"type":        "bind",
+			"options": [
+				"rw",
+				"rbind",
+				"rprivate"
+			]
+		},
+{{end}}
 		{
 			"destination": "/proc",
 			"type": "proc",

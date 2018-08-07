@@ -15,12 +15,14 @@ func (s *Service) DeleteVM(ctx context.Context, req *pb.IDParcel) (*pb.Void, err
 		ethNamePath = filepath.Join(vmPath, "eth-name")
 	)
 
-	deleteVirtualInterfaceIfExists(ethNamePath)
 	s.runc.DeleteContainer(req.Value)
+	deleteVirtualInterfaceIfExists(ethNamePath)
 	os.RemoveAll(vmPath)
 	return &pb.Void{}, nil
 }
 
+// deleting a non-existent virtual interface will panic
+// so we have to check first
 func deleteVirtualInterfaceIfExists(path string) {
 	contents, err := ioutil.ReadFile(path)
 	if err != nil || string(contents) == "" {

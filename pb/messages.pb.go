@@ -26,6 +26,7 @@ const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 type CreateVMOpts struct {
 	StemcellID           string   `protobuf:"bytes,1,opt,name=stemcellID,proto3" json:"stemcellID,omitempty"`
 	AgentSettings        []byte   `protobuf:"bytes,2,opt,name=agentSettings,proto3" json:"agentSettings,omitempty"`
+	DiskID               string   `protobuf:"bytes,3,opt,name=diskID,proto3" json:"diskID,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -35,7 +36,7 @@ func (m *CreateVMOpts) Reset()         { *m = CreateVMOpts{} }
 func (m *CreateVMOpts) String() string { return proto.CompactTextString(m) }
 func (*CreateVMOpts) ProtoMessage()    {}
 func (*CreateVMOpts) Descriptor() ([]byte, []int) {
-	return fileDescriptor_messages_d06f36f5336cf43b, []int{0}
+	return fileDescriptor_messages_b9dcf08f22c0654b, []int{0}
 }
 func (m *CreateVMOpts) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreateVMOpts.Unmarshal(m, b)
@@ -69,7 +70,14 @@ func (m *CreateVMOpts) GetAgentSettings() []byte {
 	return nil
 }
 
-type AttachDisksOpts struct {
+func (m *CreateVMOpts) GetDiskID() string {
+	if m != nil {
+		return m.DiskID
+	}
+	return ""
+}
+
+type DisksOpts struct {
 	VmID                 string   `protobuf:"bytes,1,opt,name=vmID,proto3" json:"vmID,omitempty"`
 	DiskID               string   `protobuf:"bytes,2,opt,name=diskID,proto3" json:"diskID,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -77,38 +85,38 @@ type AttachDisksOpts struct {
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *AttachDisksOpts) Reset()         { *m = AttachDisksOpts{} }
-func (m *AttachDisksOpts) String() string { return proto.CompactTextString(m) }
-func (*AttachDisksOpts) ProtoMessage()    {}
-func (*AttachDisksOpts) Descriptor() ([]byte, []int) {
-	return fileDescriptor_messages_d06f36f5336cf43b, []int{1}
+func (m *DisksOpts) Reset()         { *m = DisksOpts{} }
+func (m *DisksOpts) String() string { return proto.CompactTextString(m) }
+func (*DisksOpts) ProtoMessage()    {}
+func (*DisksOpts) Descriptor() ([]byte, []int) {
+	return fileDescriptor_messages_b9dcf08f22c0654b, []int{1}
 }
-func (m *AttachDisksOpts) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_AttachDisksOpts.Unmarshal(m, b)
+func (m *DisksOpts) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_DisksOpts.Unmarshal(m, b)
 }
-func (m *AttachDisksOpts) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_AttachDisksOpts.Marshal(b, m, deterministic)
+func (m *DisksOpts) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_DisksOpts.Marshal(b, m, deterministic)
 }
-func (dst *AttachDisksOpts) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_AttachDisksOpts.Merge(dst, src)
+func (dst *DisksOpts) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DisksOpts.Merge(dst, src)
 }
-func (m *AttachDisksOpts) XXX_Size() int {
-	return xxx_messageInfo_AttachDisksOpts.Size(m)
+func (m *DisksOpts) XXX_Size() int {
+	return xxx_messageInfo_DisksOpts.Size(m)
 }
-func (m *AttachDisksOpts) XXX_DiscardUnknown() {
-	xxx_messageInfo_AttachDisksOpts.DiscardUnknown(m)
+func (m *DisksOpts) XXX_DiscardUnknown() {
+	xxx_messageInfo_DisksOpts.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_AttachDisksOpts proto.InternalMessageInfo
+var xxx_messageInfo_DisksOpts proto.InternalMessageInfo
 
-func (m *AttachDisksOpts) GetVmID() string {
+func (m *DisksOpts) GetVmID() string {
 	if m != nil {
 		return m.VmID
 	}
 	return ""
 }
 
-func (m *AttachDisksOpts) GetDiskID() string {
+func (m *DisksOpts) GetDiskID() string {
 	if m != nil {
 		return m.DiskID
 	}
@@ -126,7 +134,7 @@ func (m *DataParcel) Reset()         { *m = DataParcel{} }
 func (m *DataParcel) String() string { return proto.CompactTextString(m) }
 func (*DataParcel) ProtoMessage()    {}
 func (*DataParcel) Descriptor() ([]byte, []int) {
-	return fileDescriptor_messages_d06f36f5336cf43b, []int{2}
+	return fileDescriptor_messages_b9dcf08f22c0654b, []int{2}
 }
 func (m *DataParcel) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DataParcel.Unmarshal(m, b)
@@ -164,7 +172,7 @@ func (m *TruthParcel) Reset()         { *m = TruthParcel{} }
 func (m *TruthParcel) String() string { return proto.CompactTextString(m) }
 func (*TruthParcel) ProtoMessage()    {}
 func (*TruthParcel) Descriptor() ([]byte, []int) {
-	return fileDescriptor_messages_d06f36f5336cf43b, []int{3}
+	return fileDescriptor_messages_b9dcf08f22c0654b, []int{3}
 }
 func (m *TruthParcel) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_TruthParcel.Unmarshal(m, b)
@@ -202,7 +210,7 @@ func (m *ValueParcel) Reset()         { *m = ValueParcel{} }
 func (m *ValueParcel) String() string { return proto.CompactTextString(m) }
 func (*ValueParcel) ProtoMessage()    {}
 func (*ValueParcel) Descriptor() ([]byte, []int) {
-	return fileDescriptor_messages_d06f36f5336cf43b, []int{4}
+	return fileDescriptor_messages_b9dcf08f22c0654b, []int{4}
 }
 func (m *ValueParcel) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ValueParcel.Unmarshal(m, b)
@@ -240,7 +248,7 @@ func (m *IDParcel) Reset()         { *m = IDParcel{} }
 func (m *IDParcel) String() string { return proto.CompactTextString(m) }
 func (*IDParcel) ProtoMessage()    {}
 func (*IDParcel) Descriptor() ([]byte, []int) {
-	return fileDescriptor_messages_d06f36f5336cf43b, []int{5}
+	return fileDescriptor_messages_b9dcf08f22c0654b, []int{5}
 }
 func (m *IDParcel) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_IDParcel.Unmarshal(m, b)
@@ -277,7 +285,7 @@ func (m *Void) Reset()         { *m = Void{} }
 func (m *Void) String() string { return proto.CompactTextString(m) }
 func (*Void) ProtoMessage()    {}
 func (*Void) Descriptor() ([]byte, []int) {
-	return fileDescriptor_messages_d06f36f5336cf43b, []int{6}
+	return fileDescriptor_messages_b9dcf08f22c0654b, []int{6}
 }
 func (m *Void) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Void.Unmarshal(m, b)
@@ -299,7 +307,7 @@ var xxx_messageInfo_Void proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*CreateVMOpts)(nil), "pb.CreateVMOpts")
-	proto.RegisterType((*AttachDisksOpts)(nil), "pb.AttachDisksOpts")
+	proto.RegisterType((*DisksOpts)(nil), "pb.DisksOpts")
 	proto.RegisterType((*DataParcel)(nil), "pb.DataParcel")
 	proto.RegisterType((*TruthParcel)(nil), "pb.TruthParcel")
 	proto.RegisterType((*ValueParcel)(nil), "pb.ValueParcel")
@@ -323,7 +331,8 @@ type CPIDClient interface {
 	DeleteStemcell(ctx context.Context, in *IDParcel, opts ...grpc.CallOption) (*Void, error)
 	DeleteDisk(ctx context.Context, in *IDParcel, opts ...grpc.CallOption) (*Void, error)
 	CreateDisk(ctx context.Context, in *ValueParcel, opts ...grpc.CallOption) (*IDParcel, error)
-	AttachDisk(ctx context.Context, in *AttachDisksOpts, opts ...grpc.CallOption) (*Void, error)
+	AttachDisk(ctx context.Context, in *DisksOpts, opts ...grpc.CallOption) (*Void, error)
+	DetachDisk(ctx context.Context, in *DisksOpts, opts ...grpc.CallOption) (*Void, error)
 	HasDisk(ctx context.Context, in *IDParcel, opts ...grpc.CallOption) (*TruthParcel, error)
 	CreateVM(ctx context.Context, in *CreateVMOpts, opts ...grpc.CallOption) (*IDParcel, error)
 	DeleteVM(ctx context.Context, in *IDParcel, opts ...grpc.CallOption) (*Void, error)
@@ -399,9 +408,18 @@ func (c *cPIDClient) CreateDisk(ctx context.Context, in *ValueParcel, opts ...gr
 	return out, nil
 }
 
-func (c *cPIDClient) AttachDisk(ctx context.Context, in *AttachDisksOpts, opts ...grpc.CallOption) (*Void, error) {
+func (c *cPIDClient) AttachDisk(ctx context.Context, in *DisksOpts, opts ...grpc.CallOption) (*Void, error) {
 	out := new(Void)
 	err := c.cc.Invoke(ctx, "/pb.CPID/AttachDisk", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cPIDClient) DetachDisk(ctx context.Context, in *DisksOpts, opts ...grpc.CallOption) (*Void, error) {
+	out := new(Void)
+	err := c.cc.Invoke(ctx, "/pb.CPID/DetachDisk", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -450,7 +468,8 @@ type CPIDServer interface {
 	DeleteStemcell(context.Context, *IDParcel) (*Void, error)
 	DeleteDisk(context.Context, *IDParcel) (*Void, error)
 	CreateDisk(context.Context, *ValueParcel) (*IDParcel, error)
-	AttachDisk(context.Context, *AttachDisksOpts) (*Void, error)
+	AttachDisk(context.Context, *DisksOpts) (*Void, error)
+	DetachDisk(context.Context, *DisksOpts) (*Void, error)
 	HasDisk(context.Context, *IDParcel) (*TruthParcel, error)
 	CreateVM(context.Context, *CreateVMOpts) (*IDParcel, error)
 	DeleteVM(context.Context, *IDParcel) (*Void, error)
@@ -542,7 +561,7 @@ func _CPID_CreateDisk_Handler(srv interface{}, ctx context.Context, dec func(int
 }
 
 func _CPID_AttachDisk_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AttachDisksOpts)
+	in := new(DisksOpts)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -554,7 +573,25 @@ func _CPID_AttachDisk_Handler(srv interface{}, ctx context.Context, dec func(int
 		FullMethod: "/pb.CPID/AttachDisk",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CPIDServer).AttachDisk(ctx, req.(*AttachDisksOpts))
+		return srv.(CPIDServer).AttachDisk(ctx, req.(*DisksOpts))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CPID_DetachDisk_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DisksOpts)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CPIDServer).DetachDisk(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/pb.CPID/DetachDisk",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CPIDServer).DetachDisk(ctx, req.(*DisksOpts))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -652,6 +689,10 @@ var _CPID_serviceDesc = grpc.ServiceDesc{
 			Handler:    _CPID_AttachDisk_Handler,
 		},
 		{
+			MethodName: "DetachDisk",
+			Handler:    _CPID_DetachDisk_Handler,
+		},
+		{
 			MethodName: "HasDisk",
 			Handler:    _CPID_HasDisk_Handler,
 		},
@@ -678,30 +719,31 @@ var _CPID_serviceDesc = grpc.ServiceDesc{
 	Metadata: "messages.proto",
 }
 
-func init() { proto.RegisterFile("messages.proto", fileDescriptor_messages_d06f36f5336cf43b) }
+func init() { proto.RegisterFile("messages.proto", fileDescriptor_messages_b9dcf08f22c0654b) }
 
-var fileDescriptor_messages_d06f36f5336cf43b = []byte{
-	// 344 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x74, 0x92, 0x51, 0x6b, 0xfa, 0x30,
-	0x14, 0xc5, 0xa9, 0x7f, 0xf5, 0x5f, 0xcf, 0xba, 0x3a, 0xb2, 0x31, 0xc4, 0x87, 0x21, 0x9d, 0x8c,
-	0xb2, 0x81, 0x8c, 0xed, 0x79, 0x0f, 0xc3, 0x3c, 0xd8, 0x07, 0x99, 0x54, 0xe9, 0x7b, 0xd4, 0xa0,
-	0xc5, 0xaa, 0xa5, 0x89, 0x7e, 0x82, 0x7d, 0xf0, 0x91, 0xd4, 0xce, 0xe8, 0xea, 0x5b, 0xee, 0xcd,
-	0x2f, 0xe7, 0xdc, 0x7b, 0x73, 0xe1, 0xae, 0xb9, 0x10, 0x6c, 0xc1, 0x45, 0x2f, 0xcd, 0xb6, 0x72,
-	0x4b, 0x2a, 0xe9, 0xd4, 0x9b, 0xc0, 0xe9, 0x67, 0x9c, 0x49, 0x1e, 0x0d, 0xbf, 0x52, 0x29, 0xc8,
-	0x03, 0x20, 0x24, 0x5f, 0xcf, 0x78, 0x92, 0x04, 0xb4, 0x65, 0x75, 0x2c, 0xbf, 0x11, 0x1a, 0x19,
-	0xd2, 0xc5, 0x35, 0x5b, 0xf0, 0x8d, 0x1c, 0x73, 0x29, 0xe3, 0xcd, 0x42, 0xb4, 0x2a, 0x1d, 0xcb,
-	0x77, 0xc2, 0xd3, 0xa4, 0xf7, 0x81, 0xe6, 0xa7, 0x94, 0x6c, 0xb6, 0xa4, 0xb1, 0x58, 0x09, 0x2d,
-	0x4c, 0x50, 0xdd, 0xaf, 0x7f, 0x25, 0xf5, 0x99, 0xdc, 0xa3, 0x3e, 0x8f, 0xc5, 0x2a, 0xa0, 0x5a,
-	0xa5, 0x11, 0x1e, 0x22, 0xcf, 0x03, 0x28, 0x93, 0x6c, 0xc4, 0xb2, 0x19, 0x4f, 0xc8, 0x1d, 0x6a,
-	0x7b, 0x96, 0xec, 0xb8, 0x7e, 0xea, 0x84, 0x79, 0xe0, 0x3d, 0xe2, 0x6a, 0x92, 0xed, 0xe4, 0xb2,
-	0x0c, 0xb2, 0x0d, 0x28, 0x52, 0x87, 0x32, 0xa8, 0x56, 0x40, 0x1d, 0xd8, 0x01, 0x2d, 0x23, 0x1a,
-	0x05, 0x51, 0x47, 0x35, 0xda, 0xc6, 0xf3, 0xb7, 0xef, 0x7f, 0xa8, 0xf6, 0x47, 0x01, 0x25, 0xaf,
-	0x70, 0xf3, 0xa9, 0x8d, 0x0f, 0x93, 0x21, 0x6e, 0x2f, 0x9d, 0xf6, 0x8e, 0x45, 0xb7, 0x1d, 0x15,
-	0x17, 0xb2, 0xbe, 0x45, 0x7c, 0xb8, 0x94, 0x27, 0xdc, 0x78, 0x71, 0x42, 0xb4, 0x6d, 0x15, 0x29,
-	0x13, 0xd2, 0x05, 0x72, 0x52, 0xcd, 0xee, 0x22, 0xf5, 0x02, 0xe4, 0x15, 0x68, 0xaa, 0xa9, 0xf3,
-	0xc7, 0x4e, 0x4f, 0xed, 0x15, 0x7c, 0xfc, 0x0e, 0x72, 0xab, 0xee, 0xce, 0xbe, 0xc7, 0x50, 0xf6,
-	0xf1, 0x7f, 0xc0, 0x44, 0x89, 0xb9, 0x36, 0x31, 0x67, 0xfe, 0x0c, 0xbb, 0xd8, 0x1d, 0x72, 0xa3,
-	0x2e, 0xcd, 0x4d, 0x3a, 0x2b, 0xc1, 0x83, 0x9d, 0x77, 0x15, 0x0d, 0x2f, 0xf6, 0xf4, 0x84, 0xda,
-	0x80, 0x89, 0x3f, 0xc0, 0xb9, 0xef, 0xb4, 0xae, 0xd7, 0xf7, 0xfd, 0x27, 0x00, 0x00, 0xff, 0xff,
-	0x5f, 0x27, 0x8a, 0xc4, 0xd0, 0x02, 0x00, 0x00,
+var fileDescriptor_messages_b9dcf08f22c0654b = []byte{
+	// 354 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x92, 0x4f, 0x6b, 0xea, 0x40,
+	0x14, 0xc5, 0x89, 0xff, 0x5e, 0x3c, 0x2f, 0xe6, 0x3d, 0x86, 0xc7, 0x43, 0x5c, 0x14, 0x49, 0xb5,
+	0x84, 0x16, 0xa4, 0xb4, 0x8b, 0xae, 0x8b, 0xb3, 0x30, 0x0b, 0xa9, 0x68, 0xc9, 0x7e, 0xd4, 0x41,
+	0x83, 0x51, 0x43, 0x66, 0xf4, 0x1b, 0xf5, 0x7b, 0x96, 0x99, 0x98, 0x3a, 0xb1, 0x91, 0xee, 0x72,
+	0x6f, 0x7e, 0xf7, 0x9e, 0x73, 0xef, 0x5c, 0xb8, 0x5b, 0x2e, 0x04, 0x5b, 0x71, 0x31, 0x48, 0xd2,
+	0xbd, 0xdc, 0x93, 0x4a, 0x32, 0xf7, 0x62, 0x38, 0xc3, 0x94, 0x33, 0xc9, 0xc3, 0xf1, 0x5b, 0x22,
+	0x05, 0xb9, 0x01, 0x84, 0xe4, 0xdb, 0x05, 0x8f, 0xe3, 0x80, 0xb6, 0xad, 0xae, 0xe5, 0x37, 0xa7,
+	0x46, 0x86, 0xf4, 0xd0, 0x62, 0x2b, 0xbe, 0x93, 0x33, 0x2e, 0x65, 0xb4, 0x5b, 0x89, 0x76, 0xa5,
+	0x6b, 0xf9, 0xce, 0xb4, 0x98, 0x24, 0xff, 0xd1, 0x58, 0x46, 0x62, 0x13, 0xd0, 0x76, 0x55, 0x77,
+	0x38, 0x45, 0xde, 0x0b, 0x9a, 0x34, 0x12, 0x1b, 0xa1, 0xa5, 0x08, 0x6a, 0xc7, 0xed, 0x97, 0x88,
+	0xfe, 0x36, 0x0a, 0x2b, 0x85, 0x42, 0x0f, 0xa0, 0x4c, 0xb2, 0x09, 0x4b, 0x17, 0x3c, 0x26, 0xff,
+	0x50, 0x3f, 0xb2, 0xf8, 0xc0, 0x75, 0xa9, 0x33, 0xcd, 0x02, 0xef, 0x16, 0xbf, 0xdf, 0xd3, 0x83,
+	0x5c, 0x97, 0x41, 0xb6, 0x01, 0x85, 0xea, 0xa3, 0x0c, 0xaa, 0xe7, 0x50, 0x17, 0x76, 0x40, 0xcb,
+	0x88, 0x66, 0x4e, 0x34, 0x50, 0x0b, 0xf7, 0xd1, 0xf2, 0xe9, 0xa3, 0x8a, 0xda, 0x70, 0x12, 0x50,
+	0xf2, 0x08, 0x37, 0xdb, 0xe3, 0xec, 0xb4, 0x2b, 0xe2, 0x0e, 0x92, 0xf9, 0xe0, 0x6c, 0xba, 0xe3,
+	0xa8, 0x38, 0x6f, 0xeb, 0x5b, 0xc4, 0x87, 0x4b, 0x79, 0xcc, 0x8d, 0x8a, 0x02, 0xd1, 0xb1, 0x55,
+	0xa4, 0x44, 0x48, 0x0f, 0xc8, 0x48, 0xb5, 0xbb, 0xab, 0xd4, 0x03, 0x90, 0x39, 0xd0, 0xd4, 0x1f,
+	0x9d, 0x3f, 0x4f, 0x5a, 0x94, 0x27, 0x7d, 0xe0, 0x55, 0x4a, 0xb6, 0x58, 0x6b, 0xb8, 0xa5, 0xad,
+	0xe6, 0x0f, 0x63, 0xf4, 0xec, 0x2b, 0xe5, 0x9f, 0x31, 0x1f, 0xbf, 0x46, 0x4c, 0x94, 0xb8, 0xd3,
+	0x2e, 0xcc, 0x47, 0xb9, 0x87, 0x9d, 0x9f, 0x1b, 0xf9, 0xab, 0x7e, 0x9a, 0xc7, 0x77, 0xe1, 0xd1,
+	0x83, 0x9d, 0x8d, 0x1d, 0x8e, 0xaf, 0x0e, 0x7d, 0x87, 0xfa, 0x88, 0x89, 0x6f, 0xc0, 0xa5, 0xee,
+	0xbc, 0xa1, 0x2f, 0xfe, 0xf9, 0x33, 0x00, 0x00, 0xff, 0xff, 0x8f, 0x1f, 0x6c, 0x89, 0x03, 0x03,
+	0x00, 0x00,
 }

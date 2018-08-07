@@ -33,18 +33,14 @@ type Env struct {
 type Bosh struct {
 	Password string                 `json:"password"`
 	Group    string                 `json:"group"`
-	Groups   []string               `json:"groups"`
+	Groups   []interface{}          `json:"groups"`
 	Mbus     map[string]interface{} `json:"mbus"`
 }
 
-func ConvertAgentSettings(agentGUID string, env []interface{}, config cfg.Config) []byte {
+func ConvertAgentSettings(env []interface{}, config cfg.Config) []byte {
 	var settings AgentSettings
 
-	settings.ID = agentGUID
-	settings.VM = VM{
-		ID:   str(fetch(env, 0)),
-		Name: str(fetch(env, 0)),
-	}
+	settings.ID = str(fetch(env, 0))
 	settings.Mbus = config.Agent.Mbus
 	settings.NTP = config.Agent.NTP
 	settings.Blobstore = Blobstore{
@@ -112,8 +108,8 @@ func mapping(input interface{}) map[string]interface{} {
 	return val
 }
 
-func array(input interface{}) []string {
-	val, _ := input.([]string)
+func array(input interface{}) []interface{} {
+	val, _ := input.([]interface{})
 	return val
 }
 
