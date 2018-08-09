@@ -76,26 +76,19 @@ func (r *Runc) stopContainer(id string) {
 }
 
 func (r *Runc) containerStatus(id string) (string, error) {
-	output, err := exec.Command(r.command, "list", "--format", "json").Output()
+	output, err := exec.Command(r.command, "state", id).Output()
 	if err != nil {
-		return "", fmt.Errorf("failed to query vms: %s", err)
+		return "", fmt.Errorf("failed to query vm: %s", err)
 	}
 
-	var vms []struct {
-		ID string `json:"id"`
+	var vm struct {
 		Status string `json:"status"`
 	}
 
-	err = json.Unmarshal(output, &vms)
+	err = json.Unmarshal(output, &vm)
 	if err != nil {
-		return "", fmt.Errorf("failed to query vms: %s", err)
+		return "", fmt.Errorf("failed to query vm: %s", err)
 	}
 
-	for _, vm := range vms {
-		if vm.ID == id {
-			return vm.Status, nil
-		}
-	}
-
-	return "", fmt.Errorf("failed to query vms: %s", err)
+	return vm.Status, nil
 }

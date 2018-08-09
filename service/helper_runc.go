@@ -1,6 +1,9 @@
 package service
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"fmt"
+)
 
 func attachBindMount(contents []byte, source string, destination string) []byte {
 	var spec map[string]interface{}
@@ -28,11 +31,16 @@ func detachBindMount(contents []byte, source string) []byte {
 	json.Unmarshal(contents, &spec)
 
 	var filteredMounts []interface{}
-	if mounts, ok := spec["mounts"].([]map[string]interface{}); ok {
+	if mounts, ok := spec["mounts"].([]interface{}); ok {
 		for _, mount := range mounts {
-			if src, ok := mount["source"]; ok {
-				if src != source {
-					filteredMounts = append(filteredMounts, mount)
+
+			fmt.Printf("[DEBUG] %#v\n\n\n", spec)
+
+			if m, ok := mount.(map[string]interface{}); ok {
+				if src, ok := m["source"].(string); ok {
+					if src != source {
+						filteredMounts = append(filteredMounts, mount)
+					}
 				}
 			}
 		}

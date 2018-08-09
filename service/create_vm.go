@@ -44,6 +44,7 @@ func (s *Service) CreateVM(ctx context.Context, req *pb.CreateVMOpts) (*pb.IDPar
 
 	if req.DiskID != "" {
 		agentSettings = attachPersistentDisk(agentSettings, req.DiskID, persistentDiskDir)
+		diskPath = filepath.Join(s.config.DiskDir, req.DiskID)
 	}
 
 	err = ioutil.WriteFile(agentSettingsPath, agentSettings, 0666)
@@ -56,10 +57,6 @@ func (s *Service) CreateVM(ctx context.Context, req *pb.CreateVMOpts) (*pb.IDPar
 		return nil, fmt.Errorf("failed to write container spec: %s", err)
 	}
 	defer f.Close()
-
-	if req.DiskID != "" {
-		diskPath = filepath.Join(s.config.DiskDir, req.DiskID)
-	}
 
 	err = s.writeContainerSpec(f, containerOpts{
 		ID:                id,
@@ -74,27 +71,13 @@ func (s *Service) CreateVM(ctx context.Context, req *pb.CreateVMOpts) (*pb.IDPar
 		return nil, fmt.Errorf("failed to write container spec: %s", err)
 	}
 
-	err = s.runc.Create(id, vmPath, pidPath)
+	err = s.startContainer(ctx, id, vmPath, pidPath, agentSettings, true)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create container: %s", err)
+		return nil, err
 	}
 
-	ip, mask, gatewayIP, err := extractNetValues(agentSettings)
-	if err != nil {
-		s.DeleteVM(ctx, &pb.IDParcel{Value: id})
-		return nil, fmt.Errorf("failed to extract network values: %s", err)
-	}
-
-	err = s.configureNetworking(vmPath, pidPath, ip, mask, gatewayIP)
-	if err != nil {
-		s.DeleteVM(ctx, &pb.IDParcel{Value: id})
-		return nil, fmt.Errorf("failed to configure networker: %s", err)
-	}
-
-	err = s.runc.Start(id)
-	if err != nil {
-		s.DeleteVM(ctx, &pb.IDParcel{Value: id})
-		return nil, fmt.Errorf("failed to start container: %s", err)
+	if req.DiskID != "" {
+		saveDiskState(vmPath, req.DiskID)
 	}
 
 	return &pb.IDParcel{Value: id}, nil

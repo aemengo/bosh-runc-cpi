@@ -42,25 +42,12 @@ func (s *Service) AttachDisk(ctx context.Context, req *pb.DisksOpts) (*pb.Void, 
 		return nil, fmt.Errorf("failed to write agent settings file: %s", err)
 	}
 
-	err = s.runc.Create(req.VmID, vmPath, pidPath)
+	err = s.startContainer(ctx, req.VmID, vmPath, pidPath, agentSettings)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create container: %s", err)
+		return nil, err
 	}
 
-	ip, mask, gatewayIP, err := extractNetValues(agentSettings)
-	if err != nil {
-		return nil, fmt.Errorf("failed to extract network values: %s", err)
-	}
-
-	err = s.configureNetworking(vmPath, pidPath, ip, mask, gatewayIP)
-	if err != nil {
-		return nil, fmt.Errorf("failed to configure networker: %s", err)
-	}
-
-	err = s.runc.Start(req.VmID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to start container: %s", err)
-	}
+	saveDiskState(vmPath, req.DiskID)
 
 	return &pb.Void{}, nil
 }

@@ -1,64 +1,58 @@
 package service
 
 import (
-	"github.com/aemengo/bosh-containerd-cpi/pb"
 	"context"
-	"path/filepath"
-	"io/ioutil"
 	"fmt"
+	"github.com/aemengo/bosh-containerd-cpi/pb"
+	"io/ioutil"
+	"path/filepath"
 )
 
 func (s *Service) DetachDisk(ctx context.Context, req *pb.DisksOpts) (*pb.Void, error) {
-	var (
-		diskPath          = filepath.Join(s.config.DiskDir, req.DiskID)
-		vmPath            = filepath.Join(s.config.VMDir, req.VmID)
-		pidPath           = filepath.Join(vmPath, "pid")
-		specPath          = filepath.Join(vmPath, "config.json")
-		agentSettingsPath = filepath.Join(vmPath, "warden-cpi-agent-env.json")
-	)
+	var diskPath = filepath.Join(s.config.DiskDir, req.DiskID)
 
-	spec, err := ioutil.ReadFile(specPath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read spec file: %s", err)
-	}
+	// The cpi ignores calls of method type 'set_disk_metadata' and 'set_vm_metadata'
+	// so the VM id passed by the CPI is unreliable for 'detach_disk'
+	// we must use an alternate means to tracking vm to disk associations
+	for _, vmID := range vmsWithPersistentDisk(s.config.VMDir, req.DiskID) {
 
-	spec = detachBindMount(spec, diskPath)
+		var (
+			vmPath            = filepath.Join(s.config.VMDir, vmID)
+			pidPath           = filepath.Join(vmPath, "pid")
+			specPath          = filepath.Join(vmPath, "config.json")
+			agentSettingsPath = filepath.Join(vmPath, "warden-cpi-agent-env.json")
+		)
 
-	agentSettings, err := ioutil.ReadFile(agentSettingsPath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read agent settings file: %s", err)
-	}
+		spec, err := ioutil.ReadFile(specPath)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read spec file: %s", err)
+		}
 
-	agentSettings = detachPersistentDisk(agentSettings)
+		spec = detachBindMount(spec, diskPath)
 
-	s.runc.DeleteContainer(req.VmID)
+		agentSettings, err := ioutil.ReadFile(agentSettingsPath)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read agent settings file: %s", err)
+		}
 
-	if err := ioutil.WriteFile(specPath, spec, 0666); err != nil {
-		return nil, fmt.Errorf("failed to write spec file: %s", err)
-	}
+		agentSettings = detachPersistentDisk(agentSettings)
 
-	if err := ioutil.WriteFile(agentSettingsPath, agentSettings, 0666); err != nil {
-		return nil, fmt.Errorf("failed to write agent settings file: %s", err)
-	}
+		s.runc.DeleteContainer(vmID)
 
-	err = s.runc.Create(req.VmID, vmPath, pidPath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create container: %s", err)
-	}
+		if err := ioutil.WriteFile(specPath, spec, 0666); err != nil {
+			return nil, fmt.Errorf("failed to write spec file: %s", err)
+		}
 
-	ip, mask, gatewayIP, err := extractNetValues(agentSettings)
-	if err != nil {
-		return nil, fmt.Errorf("failed to extract network values: %s", err)
-	}
+		if err := ioutil.WriteFile(agentSettingsPath, agentSettings, 0666); err != nil {
+			return nil, fmt.Errorf("failed to write agent settings file: %s", err)
+		}
 
-	err = s.configureNetworking(vmPath, pidPath, ip, mask, gatewayIP)
-	if err != nil {
-		return nil, fmt.Errorf("failed to configure networker: %s", err)
-	}
+		err = s.startContainer(ctx, vmID, vmPath, pidPath, agentSettings)
+		if err != nil {
+			return nil, err
+		}
 
-	err = s.runc.Start(req.VmID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to start container: %s", err)
+		removeDiskState(vmPath, req.DiskID)
 	}
 
 	return &pb.Void{}, nil

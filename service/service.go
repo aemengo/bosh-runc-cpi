@@ -5,6 +5,9 @@ import (
 	nt "github.com/aemengo/bosh-containerd-cpi/network"
 	rc "github.com/aemengo/bosh-containerd-cpi/runc"
 	"log"
+	"github.com/aemengo/bosh-containerd-cpi/pb"
+	"fmt"
+	"context"
 )
 
 type Service struct {
@@ -21,4 +24,37 @@ func New(config cfg.Config, runc *rc.Runc, network *nt.Network, logger *log.Logg
 		network: network,
 		logger:  logger,
 	}
+}
+
+func (s *Service) startContainer(ctx context.Context, id string, vmPath string, pidPath string, agentSettings []byte, options ...bool) error {
+	var deleteOnError bool
+
+	if len(options) > 0 {
+		deleteOnError = options[0]
+	}
+
+	err := s.runc.Create(id, vmPath, pidPath)
+	if err != nil {
+		return fmt.Errorf("failed to create container: %s", err)
+	}
+
+	ip, mask, gatewayIP, err := extractNetValues(agentSettings)
+	if err != nil {
+		if deleteOnError { s.DeleteVM(ctx, &pb.IDParcel{Value: id}) }
+		return fmt.Errorf("failed to extract network values: %s", err)
+	}
+
+	err = s.configureNetworking(vmPath, pidPath, ip, mask, gatewayIP)
+	if err != nil {
+		if deleteOnError { s.DeleteVM(ctx, &pb.IDParcel{Value: id}) }
+		return fmt.Errorf("failed to configure networker: %s", err)
+	}
+
+	err = s.runc.Start(id)
+	if err != nil {
+		if deleteOnError { s.DeleteVM(ctx, &pb.IDParcel{Value: id}) }
+		return fmt.Errorf("failed to start container: %s", err)
+	}
+
+	return nil
 }
