@@ -2,12 +2,12 @@ package service
 
 import (
 	"fmt"
-	"github.com/aemengo/bosh-containerd-cpi/pb"
+	"github.com/aemengo/bosh-runc-cpi/pb"
 	"github.com/satori/go.uuid"
 	"io"
 	"os"
 	"path/filepath"
-	"github.com/aemengo/bosh-containerd-cpi/utils"
+	"github.com/aemengo/bosh-runc-cpi/utils"
 )
 
 func (s *Service) CreateStemcell(stream pb.CPID_CreateStemcellServer) error {

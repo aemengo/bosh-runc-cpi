@@ -1,8 +1,8 @@
 package bosh_test
 
 import (
-	. "github.com/aemengo/bosh-containerd-cpi/bosh"
-	cfg "github.com/aemengo/bosh-containerd-cpi/config"
+	. "github.com/aemengo/bosh-runc-cpi/bosh"
+	cfg "github.com/aemengo/bosh-runc-cpi/config"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

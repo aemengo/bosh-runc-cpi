@@ -43,10 +43,10 @@ address: "/tmp/cpid.sock"
 
 var _ = BeforeSuite(func() {
 	var err error
-	cpiPath, err = gexec.Build("github.com/aemengo/bosh-containerd-cpi/cmd/cpi")
+	cpiPath, err = gexec.Build("github.com/aemengo/bosh-runc-cpi/cmd/cpi")
 	Expect(err).NotTo(HaveOccurred())
 
-	cpidPath, err := gexec.Build("github.com/aemengo/bosh-containerd-cpi/cmd/cpid")
+	cpidPath, err := gexec.Build("github.com/aemengo/bosh-runc-cpi/cmd/cpid")
 	Expect(err).NotTo(HaveOccurred())
 
 	stemcellDir, err = ioutil.TempDir("", "bosh-cpi-test-stemcell-")

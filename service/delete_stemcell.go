@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"github.com/aemengo/bosh-containerd-cpi/pb"
+	"github.com/aemengo/bosh-runc-cpi/pb"
 	"os"
 	"path/filepath"
 )

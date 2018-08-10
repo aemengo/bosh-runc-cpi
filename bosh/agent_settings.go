@@ -2,7 +2,7 @@ package bosh
 
 import (
 	"encoding/json"
-	cfg "github.com/aemengo/bosh-containerd-cpi/config"
+	cfg "github.com/aemengo/bosh-runc-cpi/config"
 )
 
 type AgentSettings struct {

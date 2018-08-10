@@ -2,14 +2,15 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/aemengo/bosh-containerd-cpi/bosh"
-	cfg "github.com/aemengo/bosh-containerd-cpi/config"
+	"github.com/aemengo/bosh-runc-cpi/bosh"
+	cfg "github.com/aemengo/bosh-runc-cpi/config"
 	"log"
 	"os"
 	"context"
-	cmd "github.com/aemengo/bosh-containerd-cpi/command"
+	cmd "github.com/aemengo/bosh-runc-cpi/command"
 	"google.golang.org/grpc"
-	"github.com/aemengo/bosh-containerd-cpi/pb"
+	"github.com/aemengo/bosh-runc-cpi/pb"
+	"io/ioutil"
 )
 
 func main() {
@@ -28,7 +29,14 @@ func main() {
 				  } `json:"context"`
 	}
 
-	expectNoError(json.NewDecoder(os.Stdin).Decode(&args))
+contents, _ := ioutil.ReadAll(os.Stdin)
+
+err = json.Unmarshal(contents, &args)
+expectNoError(err)
+
+ioutil.WriteFile("/tmp/bosh-cpi-"+args.Method, contents, 0600)
+
+	//expectNoError(json.NewDecoder(os.Stdin).Decode(&args))
 
 	conn, err := grpc.Dial(config.ServerAddr(), grpc.WithInsecure())
 	expectNoError(err)
@@ -39,6 +47,10 @@ func main() {
 
 	command := cmd.New(ctx, cpidClient, args.Method, args.Arguments, config)
 	response := command.Run()
+
+contents, _ = json.Marshal(response)
+ioutil.WriteFile("/tmp/bosh-cpi-"+args.Method+"-response", contents, 0600)
+
 	json.NewEncoder(os.Stdout).Encode(&response)
 
 	if response.Error != nil {

@@ -1,6 +1,6 @@
 package command
 
-import "github.com/aemengo/bosh-containerd-cpi/bosh"
+import "github.com/aemengo/bosh-runc-cpi/bosh"
 
 type noOP struct {}
 

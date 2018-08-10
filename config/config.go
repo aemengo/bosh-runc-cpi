@@ -3,7 +3,7 @@ package config
 import (
 	"errors"
 	"fmt"
-	"github.com/aemengo/bosh-containerd-cpi/utils"
+	"github.com/aemengo/bosh-runc-cpi/utils"
 	"gopkg.in/yaml.v2"
 	"os"
 )

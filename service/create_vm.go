@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/aemengo/bosh-containerd-cpi/pb"
+	"github.com/aemengo/bosh-runc-cpi/pb"
 	"github.com/satori/go.uuid"
 	"io/ioutil"
 	"os"

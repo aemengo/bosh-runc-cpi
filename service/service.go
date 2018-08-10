@@ -1,11 +1,11 @@
 package service
 
 import (
-	cfg "github.com/aemengo/bosh-containerd-cpi/config"
-	nt "github.com/aemengo/bosh-containerd-cpi/network"
-	rc "github.com/aemengo/bosh-containerd-cpi/runc"
+	cfg "github.com/aemengo/bosh-runc-cpi/config"
+	nt "github.com/aemengo/bosh-runc-cpi/network"
+	rc "github.com/aemengo/bosh-runc-cpi/runc"
 	"log"
-	"github.com/aemengo/bosh-containerd-cpi/pb"
+	"github.com/aemengo/bosh-runc-cpi/pb"
 	"fmt"
 	"context"
 )

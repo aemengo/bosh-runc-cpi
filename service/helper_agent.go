@@ -3,7 +3,7 @@ package service
 import (
 	"encoding/json"
 	"errors"
-	"github.com/aemengo/bosh-containerd-cpi/bosh"
+	"github.com/aemengo/bosh-runc-cpi/bosh"
 )
 
 func extractNetValues(agentSettings []byte) (string, string, string, error) {

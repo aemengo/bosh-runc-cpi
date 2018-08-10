@@ -1,9 +1,9 @@
 package command
 
 import (
-	cfg "github.com/aemengo/bosh-containerd-cpi/config"
-	"github.com/aemengo/bosh-containerd-cpi/bosh"
-	"github.com/aemengo/bosh-containerd-cpi/pb"
+	cfg "github.com/aemengo/bosh-runc-cpi/config"
+	"github.com/aemengo/bosh-runc-cpi/bosh"
+	"github.com/aemengo/bosh-runc-cpi/pb"
 	"context"
 	"errors"
 )

@@ -1,7 +1,7 @@
 package command
 
 import (
-	"github.com/aemengo/bosh-containerd-cpi/bosh"
+	"github.com/aemengo/bosh-runc-cpi/bosh"
 )
 
 type unimplemented struct {

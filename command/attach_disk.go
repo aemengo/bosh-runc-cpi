@@ -1,10 +1,10 @@
 package command
 
 import (
-	cfg "github.com/aemengo/bosh-containerd-cpi/config"
+	cfg "github.com/aemengo/bosh-runc-cpi/config"
 	"errors"
-	"github.com/aemengo/bosh-containerd-cpi/bosh"
-	"github.com/aemengo/bosh-containerd-cpi/pb"
+	"github.com/aemengo/bosh-runc-cpi/bosh"
+	"github.com/aemengo/bosh-runc-cpi/pb"
 	"context"
 )
 

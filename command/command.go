@@ -1,10 +1,10 @@
 package command
 
 import (
-	"github.com/aemengo/bosh-containerd-cpi/bosh"
-	cfg "github.com/aemengo/bosh-containerd-cpi/config"
+	"github.com/aemengo/bosh-runc-cpi/bosh"
+	cfg "github.com/aemengo/bosh-runc-cpi/config"
 	"context"
-	"github.com/aemengo/bosh-containerd-cpi/pb"
+	"github.com/aemengo/bosh-runc-cpi/pb"
 )
 
 type Command interface {
