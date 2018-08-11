@@ -10,7 +10,6 @@ import (
 	cmd "github.com/aemengo/bosh-runc-cpi/command"
 	"google.golang.org/grpc"
 	"github.com/aemengo/bosh-runc-cpi/pb"
-	"io/ioutil"
 )
 
 func main() {
@@ -29,14 +28,7 @@ func main() {
 				  } `json:"context"`
 	}
 
-contents, _ := ioutil.ReadAll(os.Stdin)
-
-err = json.Unmarshal(contents, &args)
-expectNoError(err)
-
-ioutil.WriteFile("/tmp/bosh-cpi-"+args.Method, contents, 0600)
-
-	//expectNoError(json.NewDecoder(os.Stdin).Decode(&args))
+	expectNoError(json.NewDecoder(os.Stdin).Decode(&args))
 
 	conn, err := grpc.Dial(config.ServerAddr(), grpc.WithInsecure())
 	expectNoError(err)
@@ -47,9 +39,6 @@ ioutil.WriteFile("/tmp/bosh-cpi-"+args.Method, contents, 0600)
 
 	command := cmd.New(ctx, cpidClient, args.Method, args.Arguments, config)
 	response := command.Run()
-
-contents, _ = json.Marshal(response)
-ioutil.WriteFile("/tmp/bosh-cpi-"+args.Method+"-response", contents, 0600)
 
 	json.NewEncoder(os.Stdout).Encode(&response)
 
