@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"os/exec"
+	"regexp"
+	"strings"
 	"time"
 )
 
@@ -51,6 +53,87 @@ func (r *Runc) HasContainer(id string) (bool, error) {
 	return false, nil
 }
 
+func (r *Runc) StopProcesses(id string) error {
+	exec.Command(r.command, "exec", id, "monit", "stop", "all").Run()
+
+	var (
+		timeout = time.After(5 * time.Minute)
+		ticker  = time.NewTicker(2 * time.Second)
+		output  []byte
+	)
+
+	for {
+		select {
+		case <-timeout:
+			return fmt.Errorf("timed out waiting for processes to stop on vm: %s: %s", id, output)
+		case <-ticker.C:
+			var err error
+			output, err = exec.Command(r.command, "exec", id, "monit", "summary").Output()
+			if err != nil {
+				return fmt.Errorf("failed to query monit status of %s", id)
+			}
+
+			if allProcesses(output, "not monitored") {
+				return nil
+			}
+		}
+	}
+}
+
+func (r *Runc) StartProcesses(id string) error {
+	exec.Command(r.command, "exec", id, "monit", "start", "all").Run()
+
+	var (
+		timeout = time.After(5 * time.Minute)
+		ticker  = time.NewTicker(2 * time.Second)
+		output  []byte
+	)
+
+	for {
+		select {
+		case <-timeout:
+			return fmt.Errorf("timed out waiting for processes to start on vm: %s: %s", id, output)
+		case <-ticker.C:
+			var err error
+			output, err = exec.Command(r.command, "exec", id, "monit", "summary").Output()
+			if err != nil {
+				return fmt.Errorf("failed to query monit status of %s", id)
+			}
+
+			if allProcesses(output, "running") {
+				return nil
+			}
+		}
+	}
+}
+
+func (r *Runc) Checkpoint(id, imagePath, workPath, parentPath string) error {
+	return exec.Command(
+		r.command,
+		"checkpoint",
+		"--image-path", imagePath,
+		"--work-path", workPath,
+		"--parent-path", parentPath,
+		id,
+	).Run()
+}
+
+func (r *Runc) Restore(id, workingDirectory, imagePath, workPath, pidPath string) error {
+	cmd := exec.Command(
+		r.command,
+		"restore",
+		"-d",
+		"--image-path", imagePath,
+		"--work-path", workPath,
+		"--pid-file", pidPath,
+		id,
+	)
+
+	cmd.Dir = workingDirectory
+
+	return cmd.Run()
+}
+
 func (r *Runc) DeleteContainer(id string) {
 	r.stopContainer(id)
 	exec.Command(r.command, "delete", id).Run()
@@ -91,4 +174,19 @@ func (r *Runc) containerStatus(id string) (string, error) {
 	}
 
 	return vm.Status, nil
+}
+
+func allProcesses(output []byte, status string) bool {
+	for _, line := range strings.Split(string(output), "\n") {
+		r := regexp.MustCompile(`^(Process|System)`)
+		s := regexp.MustCompile(`\s` + status + `$`)
+
+		if r.MatchString(line) {
+			if !s.MatchString(line) {
+				return false
+			}
+		}
+	}
+
+	return true
 }

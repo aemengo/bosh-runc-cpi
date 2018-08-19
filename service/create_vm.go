@@ -28,19 +28,9 @@ func (s *Service) CreateVM(ctx context.Context, req *pb.CreateVMOpts) (*pb.IDPar
 		agentSettingsPath = filepath.Join(vmPath, "warden-cpi-agent-env.json")
 	)
 
-	err := os.MkdirAll(rootFsPath, os.ModePerm)
+	err := utils.MkdirAll(rootFsPath, upperDirPath, workDirPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to make rootfs: %s", err)
-	}
-
-	err = os.MkdirAll(upperDirPath, os.ModePerm)
-	if err != nil {
-		return nil, fmt.Errorf("failed to make upperdir: %s", err)
-	}
-
-	err = os.MkdirAll(workDirPath, os.ModePerm)
-	if err != nil {
-		return nil, fmt.Errorf("failed to make workdir: %s", err)
+		return nil, err
 	}
 
 	err = utils.RunCommand("mount",

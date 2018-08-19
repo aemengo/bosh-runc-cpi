@@ -12,6 +12,8 @@ service CPID {
   rpc HasDisk (IDParcel) returns (TruthParcel);
   rpc CreateVM (CreateVMOpts) returns (IDParcel);
   rpc DeleteVM (IDParcel) returns (Void);
+  rpc CheckpointVM (VMFilterOpts) returns (Void);
+  rpc RestoreVM (VMFilterOpts) returns (Void);
   rpc HasVM (IDParcel) returns (TruthParcel);
 }
 
@@ -24,6 +26,12 @@ message CreateVMOpts {
 message DisksOpts {
   string vmID = 1;
   string diskID = 2;
+}
+
+
+message VMFilterOpts {
+  string vmID = 1;
+  bool all = 2;
 }
 
 message DataParcel {

@@ -8,6 +8,7 @@ import (
 	"github.com/aemengo/bosh-runc-cpi/pb"
 	"fmt"
 	"context"
+	"path/filepath"
 )
 
 type Service struct {
@@ -57,4 +58,29 @@ func (s *Service) startContainer(ctx context.Context, id string, vmPath string, 
 	}
 
 	return nil
+}
+
+func (s *Service) vmIDs(req *pb.VMFilterOpts) ([]string, error) {
+	if req.VmID != "" {
+		return []string{req.VmID}, nil
+	}
+
+	if req.All == true {
+		return s.vms(), nil
+	}
+
+	return nil, fmt.Errorf("must specify a vmID or all to the 'Checkpoint VM' rpc call")
+}
+
+func (s *Service) vms() []string {
+	files, _ := filepath.Glob(filepath.Join(s.config.VMDir, "*"))
+
+	var vms []string
+
+	for _, file := range files {
+		vmID := filepath.Base(file)
+		vms = append(vms, vmID)
+	}
+
+	return vms
 }

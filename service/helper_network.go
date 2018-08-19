@@ -47,23 +47,22 @@ func (s *Service) configureNetworking(vmPath string, pidPath string, ip string, 
 	)
 }
 
-
 // deleting a non-existent virtual interface will panic
 // so we have to check first
-func (s *Service) tearDownNetworking(vmPath string) {
+func (s *Service) tearDownNetworking(vmPath string) error {
 	path := ethNamePath(vmPath)
 
 	contents, err := ioutil.ReadFile(path)
 	if err != nil || string(contents) == "" {
-		return
+		return nil
 	}
 
 	link, err := netlink.LinkByName(string(contents))
 	if err != nil {
-		return
+		return nil
 	}
 
-	netlink.LinkDel(link)
+	return netlink.LinkDel(link)
 }
 
 func ethNamePath(vmPath string) string  {

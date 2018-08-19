@@ -23,3 +23,13 @@ func RunCommand(path string, args ...string) error {
 
 	return nil
 }
+
+func MkdirAll(dirs ...string) error {
+	for _, dir := range dirs {
+		if err := os.MkdirAll(dir, os.ModePerm); err != nil {
+			return fmt.Errorf("failed to make dir at %s: %s", dir, err)
+		}
+	}
+
+	return nil
+}
