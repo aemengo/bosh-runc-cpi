@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 	"github.com/aemengo/bosh-runc-cpi/pb"
+	"github.com/aemengo/bosh-runc-cpi/utils"
 	"github.com/satori/go.uuid"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"text/template"
-	"github.com/aemengo/bosh-runc-cpi/utils"
 )
 
 func (s *Service) CreateVM(ctx context.Context, req *pb.CreateVMOpts) (*pb.IDParcel, error) {
@@ -23,6 +23,7 @@ func (s *Service) CreateVM(ctx context.Context, req *pb.CreateVMOpts) (*pb.IDPar
 		upperDirPath      = filepath.Join(vmPath, "upperdir")
 		specPath          = filepath.Join(vmPath, "config.json")
 		pidPath           = filepath.Join(vmPath, "pid")
+		stemcellIDPath    = filepath.Join(vmPath, "stemcell-id")
 		stemcellPath      = filepath.Join(s.config.StemcellDir, req.StemcellID)
 		agentSettings     = attachVMID(req.AgentSettings, id)
 		agentSettingsPath = filepath.Join(vmPath, "warden-cpi-agent-env.json")
@@ -79,6 +80,11 @@ func (s *Service) CreateVM(ctx context.Context, req *pb.CreateVMOpts) (*pb.IDPar
 
 	if req.DiskID != "" {
 		saveDiskState(vmPath, req.DiskID)
+	}
+
+	err = ioutil.WriteFile(stemcellIDPath, []byte(req.StemcellID), 0666)
+	if err != nil {
+		return nil, err
 	}
 
 	return &pb.IDParcel{Value: id}, nil

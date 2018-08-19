@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strings"
 	"time"
+	"github.com/aemengo/bosh-runc-cpi/utils"
 )
 
 type Runc struct {
@@ -108,30 +109,28 @@ func (r *Runc) StartProcesses(id string) error {
 }
 
 func (r *Runc) Checkpoint(id, imagePath, workPath, parentPath string) error {
-	return exec.Command(
+	return utils.RunCommand(
 		r.command,
 		"checkpoint",
+		"--tcp-established",
 		"--image-path", imagePath,
 		"--work-path", workPath,
 		"--parent-path", parentPath,
 		id,
-	).Run()
+	)
 }
 
-func (r *Runc) Restore(id, workingDirectory, imagePath, workPath, pidPath string) error {
-	cmd := exec.Command(
+func (r *Runc) Restore(id, bundlePath, imagePath, workPath, pidPath string) error {
+	return utils.RunCommand(
 		r.command,
 		"restore",
 		"-d",
 		"--image-path", imagePath,
 		"--work-path", workPath,
 		"--pid-file", pidPath,
+		"--bundle", bundlePath,
 		id,
 	)
-
-	cmd.Dir = workingDirectory
-
-	return cmd.Run()
 }
 
 func (r *Runc) DeleteContainer(id string) {
@@ -150,7 +149,7 @@ func (r *Runc) stopContainer(id string) {
 			exec.Command(r.command, "kill", "--all", id, "KILL").Run()
 			return
 		default:
-			status, _ := r.containerStatus(id)
+			status, _ := r.ContainerStatus(id)
 			if status == "stopped" {
 				return
 			}
@@ -158,22 +157,18 @@ func (r *Runc) stopContainer(id string) {
 	}
 }
 
-func (r *Runc) containerStatus(id string) (string, error) {
+func (r *Runc) ContainerStatus(id string) (string, bool) {
 	output, err := exec.Command(r.command, "state", id).Output()
 	if err != nil {
-		return "", fmt.Errorf("failed to query vm: %s", err)
+		return "", false
 	}
 
 	var vm struct {
 		Status string `json:"status"`
 	}
 
-	err = json.Unmarshal(output, &vm)
-	if err != nil {
-		return "", fmt.Errorf("failed to query vm: %s", err)
-	}
-
-	return vm.Status, nil
+	json.Unmarshal(output, &vm)
+	return vm.Status, true
 }
 
 func allProcesses(output []byte, status string) bool {
