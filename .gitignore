@@ -6,3 +6,5 @@ bin
 linuxkit/out
 
 integration/fixtures/*.tgz
+
+temp

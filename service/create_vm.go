@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"text/template"
+	"github.com/aemengo/bosh-runc-cpi/utils"
 )
 
 func (s *Service) CreateVM(ctx context.Context, req *pb.CreateVMOpts) (*pb.IDParcel, error) {
@@ -40,6 +41,16 @@ func (s *Service) CreateVM(ctx context.Context, req *pb.CreateVMOpts) (*pb.IDPar
 	err = os.MkdirAll(workDirPath, os.ModePerm)
 	if err != nil {
 		return nil, fmt.Errorf("failed to make workdir: %s", err)
+	}
+
+	err = utils.RunCommand("mount",
+		"-t", "overlay",
+		"-o", fmt.Sprintf("lowerdir=%s,upperdir=%s,workdir=%s", stemcellPath, upperDirPath, workDirPath),
+		"overlay",
+		rootFsPath,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to make rootfs: %s", err)
 	}
 
 	if req.DiskID != "" {
@@ -337,17 +348,6 @@ var containerSpec = `{
 	},
 	"hostname": "runc",
 	"mounts": [
-	    {
-          "destination" : "/",
-          "source" : "overlay",
-          "type" : "overlay",
-          "options" : [
-          	 "suid",
-             "upperdir={{ .Upperdir }}",
-             "lowerdir={{ .Lowerdir }}",
-             "workdir={{ .Workdir }}"
-          ]
-        },
 	    {
           "destination" : "/var/vcap/bosh/warden-cpi-agent-env.json",
           "source" : "{{ .AgentSettingsPath }}",

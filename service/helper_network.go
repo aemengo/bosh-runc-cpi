@@ -21,7 +21,7 @@ func (s *Service) configureNetworking(vmPath string, pidPath string, ip string, 
 	vEthPair := s.network.CreateVirtualEthernetPair(pid)
 
 	err = ioutil.WriteFile(
-		filepath.Join(vmPath, "eth-name"),
+		ethNamePath(vmPath),
 		[]byte(vEthPair.Name),
 		0666,
 	)
@@ -45,4 +45,27 @@ func (s *Service) configureNetworking(vmPath string, pidPath string, ip string, 
 		addr,
 		gatewayIP,
 	)
+}
+
+
+// deleting a non-existent virtual interface will panic
+// so we have to check first
+func (s *Service) tearDownNetworking(vmPath string) {
+	path := ethNamePath(vmPath)
+
+	contents, err := ioutil.ReadFile(path)
+	if err != nil || string(contents) == "" {
+		return
+	}
+
+	link, err := netlink.LinkByName(string(contents))
+	if err != nil {
+		return
+	}
+
+	netlink.LinkDel(link)
+}
+
+func ethNamePath(vmPath string) string  {
+	return filepath.Join(vmPath, "eth-name")
 }

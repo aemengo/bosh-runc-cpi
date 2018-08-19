@@ -46,7 +46,7 @@ func main() {
 	signal.Notify(sigs, syscall.SIGTERM, syscall.SIGKILL)
 	go killServerWhenStopped(sigs, s, logger)
 
-	logger.Println("Initializing bosh-linuxkit-cpid...")
+	logger.Println("Initializing bosh-runc-cpid...")
 	err = s.Serve(lis)
 	expectNoError(err)
 }
@@ -67,7 +67,7 @@ func prepareUnixSocket(config cfg.Config) error {
 
 func killServerWhenStopped(sigs chan os.Signal, server *grpc.Server, logger *log.Logger) {
 	<-sigs
-	logger.Println("Shutting down bosh-linuxkit-cpid...")
+	logger.Println("Shutting down bosh-runc-cpid...")
 	server.Stop()
 }
 

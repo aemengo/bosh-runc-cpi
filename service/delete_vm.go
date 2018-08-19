@@ -3,36 +3,20 @@ package service
 import (
 	"context"
 	"github.com/aemengo/bosh-runc-cpi/pb"
-	"github.com/vishvananda/netlink"
-	"io/ioutil"
 	"os"
 	"path/filepath"
+	"github.com/aemengo/bosh-runc-cpi/utils"
 )
 
 func (s *Service) DeleteVM(ctx context.Context, req *pb.IDParcel) (*pb.Void, error) {
 	var (
 		vmPath      = filepath.Join(s.config.VMDir, req.Value)
-		ethNamePath = filepath.Join(vmPath, "eth-name")
+		rootFsPath  = filepath.Join(vmPath, "rootfs")
 	)
 
 	s.runc.DeleteContainer(req.Value)
-	deleteVirtualInterfaceIfExists(ethNamePath)
+	s.tearDownNetworking(vmPath)
+	utils.RunCommand("umount", rootFsPath)
 	os.RemoveAll(vmPath)
 	return &pb.Void{}, nil
-}
-
-// deleting a non-existent virtual interface will panic
-// so we have to check first
-func deleteVirtualInterfaceIfExists(path string) {
-	contents, err := ioutil.ReadFile(path)
-	if err != nil || string(contents) == "" {
-		return
-	}
-
-	link, err := netlink.LinkByName(string(contents))
-	if err != nil {
-		return
-	}
-
-	netlink.LinkDel(link)
 }
