@@ -3,11 +3,11 @@ package runc
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/aemengo/bosh-runc-cpi/utils"
 	"os/exec"
 	"regexp"
 	"strings"
 	"time"
-	"github.com/aemengo/bosh-runc-cpi/utils"
 )
 
 type Runc struct {
@@ -55,7 +55,9 @@ func (r *Runc) HasContainer(id string) (bool, error) {
 }
 
 func (r *Runc) StopProcesses(id string) error {
-	exec.Command(r.command, "exec", id, "monit", "stop", "all").Run()
+	utils.Do(3, time.Second, func() error {
+		return exec.Command(r.command, "exec", id, "monit", "stop", "all").Run()
+	})
 
 	var (
 		timeout = time.After(5 * time.Minute)
@@ -82,7 +84,9 @@ func (r *Runc) StopProcesses(id string) error {
 }
 
 func (r *Runc) StartProcesses(id string) error {
-	exec.Command(r.command, "exec", id, "monit", "start", "all").Run()
+	utils.Do(3, 5*time.Second, func() error {
+		return exec.Command(r.command, "exec", id, "monit", "start", "all").Run()
+	})
 
 	var (
 		timeout = time.After(5 * time.Minute)
@@ -109,15 +113,20 @@ func (r *Runc) StartProcesses(id string) error {
 }
 
 func (r *Runc) Checkpoint(id, imagePath, workPath, parentPath string) error {
-	return utils.RunCommand(
-		r.command,
-		"checkpoint",
-		"--tcp-established",
-		"--image-path", imagePath,
-		"--work-path", workPath,
-		"--parent-path", parentPath,
-		id,
-	)
+	// sometimes the bosh-agent process is 'busy'
+	// so we try 'till we get a point in time
+	// when it doesn't interfere with checkpoint
+	return utils.Do(11, time.Second, func() error {
+		return utils.RunCommand(
+			r.command,
+			"checkpoint",
+			"--tcp-established",
+			"--image-path", imagePath,
+			"--work-path", workPath,
+			"--parent-path", parentPath,
+			id,
+		)
+	})
 }
 
 func (r *Runc) Restore(id, bundlePath, imagePath, workPath, pidPath string) error {
@@ -149,7 +158,7 @@ func (r *Runc) stopContainer(id string) {
 			exec.Command(r.command, "kill", "--all", id, "KILL").Run()
 			return
 		default:
-			status, _ := r.ContainerStatus(id)
+			status, _ := r.containerStatus(id)
 			if status == "stopped" {
 				return
 			}
@@ -157,18 +166,22 @@ func (r *Runc) stopContainer(id string) {
 	}
 }
 
-func (r *Runc) ContainerStatus(id string) (string, bool) {
+func (r *Runc) containerStatus(id string) (string, error) {
 	output, err := exec.Command(r.command, "state", id).Output()
 	if err != nil {
-		return "", false
+		return "", fmt.Errorf("failed to query container %s: %s", id, err)
 	}
 
 	var vm struct {
 		Status string `json:"status"`
 	}
 
-	json.Unmarshal(output, &vm)
-	return vm.Status, true
+	err = json.Unmarshal(output, &vm)
+	if err != nil {
+		return "", fmt.Errorf("failed to parse status for container %s: %s", id, err)
+	}
+
+	return vm.Status, nil
 }
 
 func allProcesses(output []byte, status string) bool {

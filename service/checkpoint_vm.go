@@ -2,9 +2,12 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"github.com/aemengo/bosh-runc-cpi/pb"
-	"path/filepath"
 	"github.com/aemengo/bosh-runc-cpi/utils"
+	"path/filepath"
+	"sync"
+	"strings"
 )
 
 func (s *Service) CheckpointVM(ctx context.Context, req *pb.VMFilterOpts) (*pb.Void, error) {
@@ -13,49 +16,78 @@ func (s *Service) CheckpointVM(ctx context.Context, req *pb.VMFilterOpts) (*pb.V
 		return nil, err
 	}
 
-	for _, vmID := range vmIDs {
-		var (
-			vmPath = filepath.Join(s.config.VMDir, vmID)
-			imagePath = filepath.Join(vmPath, "criu", "image")
-			workPath = filepath.Join(vmPath, "criu", "work")
-			parentPath = filepath.Join(vmPath, "criu", "parent")
-			rootFsPath  = filepath.Join(vmPath, "rootfs")
-		)
+	wg := &sync.WaitGroup{}
+	errChan := make(chan error, 1)
 
-		if status, _ := s.runc.ContainerStatus(vmID); status != "running" {
+	for _, vmID := range vmIDs {
+		if ok, _ := s.runc.HasContainer(vmID); !ok {
 			continue
 		}
 
-		err = utils.MkdirAll(imagePath, workPath, parentPath)
-		if err != nil {
-			return nil, err
-		}
+		wg.Add(1)
+		go s.checkpointVM(wg, vmID, errChan)
+	}
 
-		// monit processes must be stopped before checkpoint
-		// because the criu does not support processes made
-		// outside the umbrella of the main container pid
-		err = s.runc.StopProcesses(vmID)
-		if err != nil {
-			return nil, err
-		}
+	go func() {
+		wg.Wait()
+		close(errChan)
+	}()
 
-		// networking does not persist after restore anyway
-		// so it is better to tear it down beforehand
-		err = s.tearDownNetworking(vmPath)
-		if err != nil {
-			return nil, err
-		}
+	errors := []string{}
+	for err := range errChan {
+		errors = append(errors, err.Error())
+	}
 
-		err = s.runc.Checkpoint(vmID, imagePath, workPath, parentPath)
-		if err != nil {
-			return nil, err
-		}
-
-		err = utils.RunCommand("umount", rootFsPath)
-		if err != nil {
-			return nil, err
-		}
+	if len(errors) != 0 {
+		return nil, fmt.Errorf("failed to perform checkpoint: %s", strings.Join(errors, "\n"))
 	}
 
 	return &pb.Void{}, nil
+}
+
+func (s *Service) checkpointVM(wg *sync.WaitGroup, vmID string, errChan chan error) {
+	var (
+		vmPath     = filepath.Join(s.config.VMDir, vmID)
+		imagePath  = filepath.Join(vmPath, "criu", "image")
+		workPath   = filepath.Join(vmPath, "criu", "work")
+		parentPath = filepath.Join(vmPath, "criu", "parent")
+		rootFsPath = filepath.Join(vmPath, "rootfs")
+	)
+
+	defer wg.Done()
+
+	err := utils.MkdirAll(imagePath, workPath, parentPath)
+	if err != nil {
+		errChan <- fmt.Errorf("failed to checkpoint vm: %s: %s", vmID, err)
+		return
+	}
+
+	// monit processes must be stopped before checkpoint
+	// because the criu does not support processes made
+	// outside the umbrella of the main container pid
+	err = s.runc.StopProcesses(vmID)
+	if err != nil {
+		errChan <- fmt.Errorf("failed to checkpoint vm: %s: %s", vmID, err)
+		return
+	}
+
+	// networking does not persist after restore anyway
+	// so it is better to tear it down beforehand
+	err = s.tearDownNetworking(vmPath)
+	if err != nil {
+		errChan <- fmt.Errorf("failed to checkpoint vm: %s: %s", vmID, err)
+		return
+	}
+
+	err = s.runc.Checkpoint(vmID, imagePath, workPath, parentPath)
+	if err != nil {
+		errChan <- fmt.Errorf("failed to checkpoint vm: %s: %s", vmID, err)
+		return
+	}
+
+	err = utils.RunCommand("umount", rootFsPath)
+	if err != nil {
+		errChan <- fmt.Errorf("failed to checkpoint vm: %s: %s", vmID, err)
+		return
+	}
 }

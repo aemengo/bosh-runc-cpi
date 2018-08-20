@@ -28,7 +28,7 @@ func (s *Service) RestoreVM(ctx context.Context, req *pb.VMFilterOpts) (*pb.Void
 			pidPath           = filepath.Join(vmPath, "pid")
 		)
 
-		if _, ok := s.runc.ContainerStatus(vmID); ok {
+		if ok, _ := s.runc.HasContainer(vmID); ok {
 			continue
 		}
 

@@ -4,7 +4,27 @@ import (
 	"os"
 	"os/exec"
 	"fmt"
+	"time"
 )
+
+func Do(attempts int, delay time.Duration, task func() error) (err error) {
+	ticker := time.NewTicker(delay)
+
+	for {
+		select {
+		case <-ticker.C:
+			err = task()
+			if err == nil {
+				return
+			}
+
+			attempts--
+			if attempts == 0 {
+				return
+			}
+		}
+	}
+}
 
 func Exists(path string) bool  {
 	_, err := os.Stat(path)
