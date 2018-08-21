@@ -3,6 +3,7 @@ syntax = "proto3";
 package pb;
 
 service CPID {
+  rpc Ping (Void) returns (IDParcel);
   rpc CreateStemcell (stream DataParcel) returns (IDParcel);
   rpc DeleteStemcell (IDParcel) returns (Void);
   rpc DeleteDisk (IDParcel) returns (Void);
