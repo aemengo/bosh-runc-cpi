@@ -37,6 +37,6 @@ func (c *deleteVM) Run() bosh.Response {
 		return bosh.CPIError(c.logPrefix, errors.New("invalid vm id submitted"))
 	}
 
-	c.DeleteVM(c.ctx, &pb.IDParcel{Value: vmID})
+	c.DeleteVM(c.ctx, &pb.TextParcel{Value: vmID})
 	return bosh.Response{}
 }

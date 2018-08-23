@@ -8,7 +8,7 @@ import (
 	"github.com/aemengo/bosh-runc-cpi/utils"
 )
 
-func (s *Service) DeleteVM(ctx context.Context, req *pb.IDParcel) (*pb.Void, error) {
+func (s *Service) DeleteVM(ctx context.Context, req *pb.TextParcel) (*pb.Void, error) {
 	var (
 		vmPath      = filepath.Join(s.config.VMDir, req.Value)
 		rootFsPath  = filepath.Join(vmPath, "rootfs")

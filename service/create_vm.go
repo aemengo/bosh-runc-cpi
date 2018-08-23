@@ -12,7 +12,7 @@ import (
 	"text/template"
 )
 
-func (s *Service) CreateVM(ctx context.Context, req *pb.CreateVMOpts) (*pb.IDParcel, error) {
+func (s *Service) CreateVM(ctx context.Context, req *pb.CreateVMOpts) (*pb.TextParcel, error) {
 	var (
 		id                = uuid.NewV4().String()
 		diskPath          = ""
@@ -87,7 +87,7 @@ func (s *Service) CreateVM(ctx context.Context, req *pb.CreateVMOpts) (*pb.IDPar
 		return nil, err
 	}
 
-	return &pb.IDParcel{Value: id}, nil
+	return &pb.TextParcel{Value: id}, nil
 }
 
 type containerOpts struct {

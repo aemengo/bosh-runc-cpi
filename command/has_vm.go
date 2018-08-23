@@ -37,7 +37,7 @@ func (c *hasVM) Run() bosh.Response {
 		return bosh.CPIError(c.logPrefix, errors.New("invalid vm id submitted"))
 	}
 
-	success, err := c.CPIDClient.HasVM(c.ctx, &pb.IDParcel{Value: id})
+	success, err := c.CPIDClient.HasVM(c.ctx, &pb.TextParcel{Value: id})
 	if err != nil {
 		return bosh.CloudError(c.logPrefix, err)
 	}

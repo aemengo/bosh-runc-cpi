@@ -45,5 +45,5 @@ func (s *Service) CreateStemcell(stream pb.CPID_CreateStemcellServer) error {
 		return fmt.Errorf("failed to unpack stemcell: %s", err)
 	}
 
-	return stream.SendAndClose(&pb.IDParcel{Value: id})
+	return stream.SendAndClose(&pb.TextParcel{Value: id})
 }

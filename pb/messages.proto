@@ -3,19 +3,20 @@ syntax = "proto3";
 package pb;
 
 service CPID {
-  rpc Ping (Void) returns (IDParcel);
-  rpc CreateStemcell (stream DataParcel) returns (IDParcel);
-  rpc DeleteStemcell (IDParcel) returns (Void);
-  rpc DeleteDisk (IDParcel) returns (Void);
-  rpc CreateDisk (ValueParcel) returns (IDParcel);
+  rpc Ping (Void) returns (TextParcel);
+  rpc CreateStemcell (stream DataParcel) returns (TextParcel);
+  rpc DeleteStemcell (TextParcel) returns (Void);
+  rpc DeleteDisk (TextParcel) returns (Void);
+  rpc CreateDisk (NumberParcel) returns (TextParcel);
   rpc AttachDisk (DisksOpts) returns (Void);
   rpc DetachDisk (DisksOpts) returns (Void);
-  rpc HasDisk (IDParcel) returns (TruthParcel);
-  rpc CreateVM (CreateVMOpts) returns (IDParcel);
-  rpc DeleteVM (IDParcel) returns (Void);
+  rpc HasDisk (TextParcel) returns (TruthParcel);
+  rpc CreateVM (CreateVMOpts) returns (TextParcel);
+  rpc DeleteVM (TextParcel) returns (Void);
   rpc CheckpointVM (VMFilterOpts) returns (Void);
   rpc RestoreVM (VMFilterOpts) returns (Void);
-  rpc HasVM (IDParcel) returns (TruthParcel);
+  rpc HasVM (TextParcel) returns (TruthParcel);
+  rpc ShellExec(TextParcel) returns (TextParcel);
 }
 
 message CreateVMOpts {
@@ -28,7 +29,6 @@ message DisksOpts {
   string vmID = 1;
   string diskID = 2;
 }
-
 
 message VMFilterOpts {
   string vmID = 1;
@@ -43,11 +43,11 @@ message TruthParcel {
   bool value = 1;
 }
 
-message ValueParcel {
+message NumberParcel {
   int32 value = 1;
 }
 
-message IDParcel {
+message TextParcel {
   string value = 1;
 }
 

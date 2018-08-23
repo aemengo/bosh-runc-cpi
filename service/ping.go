@@ -5,6 +5,6 @@ import (
 	"context"
 )
 
-func (s *Service) Ping(ctx context.Context, req *pb.Void) (*pb.IDParcel, error) {
-	return &pb.IDParcel{Value: "pong"}, nil
+func (s *Service) Ping(ctx context.Context, req *pb.Void) (*pb.TextParcel, error) {
+	return &pb.TextParcel{Value: "pong"}, nil
 }

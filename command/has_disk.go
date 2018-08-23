@@ -37,7 +37,7 @@ func (c *hasDisk) Run() bosh.Response {
 		return bosh.CPIError(c.logPrefix, errors.New("invalid disk id submitted"))
 	}
 
-	exists, err := c.CPIDClient.HasDisk(c.ctx, &pb.IDParcel{Value: path})
+	exists, err := c.CPIDClient.HasDisk(c.ctx, &pb.TextParcel{Value: path})
 	if err != nil {
 		return bosh.CloudError(c.logPrefix, err)
 	}

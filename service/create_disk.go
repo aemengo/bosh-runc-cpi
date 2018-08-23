@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 )
 
-func (s *Service) CreateDisk(ctx context.Context, req *pb.ValueParcel) (*pb.IDParcel, error) {
+func (s *Service) CreateDisk(ctx context.Context, req *pb.NumberParcel) (*pb.TextParcel, error) {
 	id := uuid.NewV4().String()
 	diskPath := filepath.Join(s.config.DiskDir, id)
 
@@ -18,5 +18,5 @@ func (s *Service) CreateDisk(ctx context.Context, req *pb.ValueParcel) (*pb.IDPa
 		return nil, fmt.Errorf("disk directory could not be created: %s", err)
 	}
 
-	return &pb.IDParcel{Value: id}, nil
+	return &pb.TextParcel{Value: id}, nil
 }

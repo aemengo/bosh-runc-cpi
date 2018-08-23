@@ -11,6 +11,8 @@ import (
 	"path/filepath"
 )
 
+//go:generate protoc -I ../pb --go_out=plugins=grpc:../pb ../pb/messages.proto
+
 type Service struct {
 	config  cfg.Config
 	logger  *log.Logger
@@ -41,19 +43,19 @@ func (s *Service) startContainer(ctx context.Context, id string, vmPath string, 
 
 	ip, mask, gatewayIP, err := extractNetValues(agentSettings)
 	if err != nil {
-		if deleteOnError { s.DeleteVM(ctx, &pb.IDParcel{Value: id}) }
+		if deleteOnError { s.DeleteVM(ctx, &pb.TextParcel{Value: id}) }
 		return fmt.Errorf("failed to extract network values: %s", err)
 	}
 
 	err = s.configureNetworking(vmPath, pidPath, ip, mask, gatewayIP)
 	if err != nil {
-		if deleteOnError { s.DeleteVM(ctx, &pb.IDParcel{Value: id}) }
+		if deleteOnError { s.DeleteVM(ctx, &pb.TextParcel{Value: id}) }
 		return fmt.Errorf("failed to configure networker: %s", err)
 	}
 
 	err = s.runc.Start(id)
 	if err != nil {
-		if deleteOnError { s.DeleteVM(ctx, &pb.IDParcel{Value: id}) }
+		if deleteOnError { s.DeleteVM(ctx, &pb.TextParcel{Value: id}) }
 		return fmt.Errorf("failed to start container: %s", err)
 	}
 

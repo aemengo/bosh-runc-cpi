@@ -14,6 +14,7 @@ type Config struct {
 	VMDir          string `yaml:"vm_dir"`
 	NetworkType    string `yaml:"network_type"`
 	NetworkAddress string `yaml:"address"`
+	Debug          bool   `yaml:"debug"`
 	Agent          Agent  `yaml:"agent"`
 }
 

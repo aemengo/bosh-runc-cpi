@@ -17,8 +17,6 @@ import (
 
 var logger *log.Logger
 
-//go:generate protoc -I ../../pb --go_out=plugins=grpc:../../pb ../../pb/messages.proto
-
 func main() {
 	logger = log.New(os.Stdout, "[CPID] ", log.LstdFlags)
 

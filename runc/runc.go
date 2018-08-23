@@ -120,7 +120,6 @@ func (r *Runc) Checkpoint(id, imagePath, workPath, parentPath string) error {
 		return utils.RunCommand(
 			r.command,
 			"checkpoint",
-			"--tcp-established",
 			"--image-path", imagePath,
 			"--work-path", workPath,
 			"--parent-path", parentPath,

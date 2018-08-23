@@ -37,7 +37,7 @@ func (c *createDisk) Run() bosh.Response {
 		return bosh.CPIError(c.logPrefix, errors.New("invalid disk size submitted"))
 	}
 
-	id, err := c.CreateDisk(c.ctx, &pb.ValueParcel{Value: size})
+	id, err := c.CreateDisk(c.ctx, &pb.NumberParcel{Value: size})
 	if err != nil {
 		return bosh.CloudError(c.logPrefix, err)
 	}
