@@ -60,6 +60,12 @@
   version = "v1.4.0"
 
 [[projects]]
+  name = "github.com/opencontainers/runtime-spec"
+  packages = ["specs-go"]
+  revision = "4e3b9264a330d094b0386c3703c5f379119711e8"
+  version = "v1.0.1"
+
+[[projects]]
   name = "github.com/satori/go.uuid"
   packages = ["."]
   revision = "f58768cc1a7a7e77a3bd49e98cdd21419399b6a3"
@@ -183,6 +189,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "81762b0aa8c65f27a6ea2f9393d0e731d54d84958f3bcf1881196595419c2ea7"
+  inputs-digest = "463711cdd4a83da8c8b4ef898234572a3b80f9de72d315fbfb66b6b6b4dd3dbc"
   solver-name = "gps-cdcl"
   solver-version = 1
