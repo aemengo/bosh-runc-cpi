@@ -1,13 +1,13 @@
 package service
 
 import (
+	"context"
+	"fmt"
 	cfg "github.com/aemengo/bosh-runc-cpi/config"
 	nt "github.com/aemengo/bosh-runc-cpi/network"
+	"github.com/aemengo/bosh-runc-cpi/pb"
 	rc "github.com/aemengo/bosh-runc-cpi/runc"
 	"log"
-	"github.com/aemengo/bosh-runc-cpi/pb"
-	"fmt"
-	"context"
 	"path/filepath"
 )
 
@@ -30,7 +30,9 @@ func New(config cfg.Config, runc *rc.Runc, network *nt.Network, logger *log.Logg
 }
 
 func (s *Service) startContainer(ctx context.Context, id string, vmPath string, pidPath string, agentSettings []byte, options ...bool) error {
-	var deleteOnError bool
+	var (
+		deleteOnError = false
+	)
 
 	if len(options) > 0 {
 		deleteOnError = options[0]
@@ -43,19 +45,25 @@ func (s *Service) startContainer(ctx context.Context, id string, vmPath string, 
 
 	ip, mask, gatewayIP, err := extractNetValues(agentSettings)
 	if err != nil {
-		if deleteOnError { s.DeleteVM(ctx, &pb.TextParcel{Value: id}) }
+		if deleteOnError {
+			s.DeleteVM(ctx, &pb.TextParcel{Value: id})
+		}
 		return fmt.Errorf("failed to extract network values: %s", err)
 	}
 
 	err = s.configureNetworking(vmPath, pidPath, ip, mask, gatewayIP)
 	if err != nil {
-		if deleteOnError { s.DeleteVM(ctx, &pb.TextParcel{Value: id}) }
+		if deleteOnError {
+			s.DeleteVM(ctx, &pb.TextParcel{Value: id})
+		}
 		return fmt.Errorf("failed to configure networker: %s", err)
 	}
 
 	err = s.runc.Start(id)
 	if err != nil {
-		if deleteOnError { s.DeleteVM(ctx, &pb.TextParcel{Value: id}) }
+		if deleteOnError {
+			s.DeleteVM(ctx, &pb.TextParcel{Value: id})
+		}
 		return fmt.Errorf("failed to start container: %s", err)
 	}
 

@@ -9,14 +9,12 @@ import (
 func saveDiskState(vmPath string, diskID string) {
 	diskStateDir := filepath.Join(vmPath, "disks")
 	diskStatePath := filepath.Join(diskStateDir, diskID)
-
 	os.MkdirAll(diskStateDir, os.ModePerm)
 	ioutil.WriteFile(diskStatePath, []byte(""), 0666)
 }
 
 func removeDiskState(vmPath string, diskID string) {
 	diskStatePath := filepath.Join(vmPath, "disks", diskID)
-
 	os.RemoveAll(diskStatePath)
 }
 

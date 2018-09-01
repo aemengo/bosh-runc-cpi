@@ -13,8 +13,6 @@ service CPID {
   rpc HasDisk (TextParcel) returns (TruthParcel);
   rpc CreateVM (CreateVMOpts) returns (TextParcel);
   rpc DeleteVM (TextParcel) returns (Void);
-  rpc CheckpointVM (VMFilterOpts) returns (Void);
-  rpc RestoreVM (VMFilterOpts) returns (Void);
   rpc HasVM (TextParcel) returns (TruthParcel);
   rpc ShellExec(TextParcel) returns (TextParcel);
 }

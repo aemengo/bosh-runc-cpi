@@ -50,6 +50,15 @@ func MkdirAll(dirs ...string) error {
 			return fmt.Errorf("failed to make dir at %s: %s", dir, err)
 		}
 	}
+	return nil
+}
+
+func RemoveAll(dirs ...string) error {
+	for _, dir := range dirs {
+		if err := os.RemoveAll(dir); err != nil {
+			return fmt.Errorf("failed to make dir at %s: %s", dir, err)
+		}
+	}
 
 	return nil
 }

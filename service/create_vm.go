@@ -23,25 +23,14 @@ func (s *Service) CreateVM(ctx context.Context, req *pb.CreateVMOpts) (*pb.TextP
 		upperDirPath      = filepath.Join(vmPath, "upperdir")
 		specPath          = filepath.Join(vmPath, "config.json")
 		pidPath           = filepath.Join(vmPath, "pid")
-		stemcellIDPath    = filepath.Join(vmPath, "stemcell-id")
+		agentSettingsPath = filepath.Join(vmPath, "warden-cpi-agent-env.json")
 		stemcellPath      = filepath.Join(s.config.StemcellDir, req.StemcellID)
 		agentSettings     = attachVMID(req.AgentSettings, id)
-		agentSettingsPath = filepath.Join(vmPath, "warden-cpi-agent-env.json")
 	)
 
-	err := utils.MkdirAll(rootFsPath, upperDirPath, workDirPath)
+	err := utils.MkdirAll(rootFsPath, workDirPath, upperDirPath)
 	if err != nil {
-		return nil, err
-	}
-
-	err = utils.RunCommand("mount",
-		"-t", "overlay",
-		"-o", fmt.Sprintf("lowerdir=%s,upperdir=%s,workdir=%s", stemcellPath, upperDirPath, workDirPath),
-		"overlay",
-		rootFsPath,
-	)
-	if err != nil {
-		return nil, fmt.Errorf("failed to make rootfs: %s", err)
+		return nil, fmt.Errorf("failed to create vm directory: %s", err)
 	}
 
 	if req.DiskID != "" {
@@ -80,11 +69,6 @@ func (s *Service) CreateVM(ctx context.Context, req *pb.CreateVMOpts) (*pb.TextP
 
 	if req.DiskID != "" {
 		saveDiskState(vmPath, req.DiskID)
-	}
-
-	err = ioutil.WriteFile(stemcellIDPath, []byte(req.StemcellID), 0666)
-	if err != nil {
-		return nil, err
 	}
 
 	return &pb.TextParcel{Value: id}, nil
@@ -344,6 +328,17 @@ var containerSpec = `{
 	},
 	"hostname": "runc",
 	"mounts": [
+	    {
+          "destination" : "/",
+          "source" : "overlay",
+          "type" : "overlay",
+          "options" : [
+             "suid",
+             "upperdir={{ .Upperdir }}",
+             "lowerdir={{ .Lowerdir }}",
+             "workdir={{ .Workdir }}"
+          ]
+        },
 	    {
           "destination" : "/var/vcap/bosh/warden-cpi-agent-env.json",
           "source" : "{{ .AgentSettingsPath }}",
