@@ -5,6 +5,7 @@ import (
 	"os/exec"
 	"fmt"
 	"time"
+	"encoding/json"
 )
 
 func Do(attempts int, delay time.Duration, task func() error) (err error) {
@@ -56,9 +57,29 @@ func MkdirAll(dirs ...string) error {
 func RemoveAll(dirs ...string) error {
 	for _, dir := range dirs {
 		if err := os.RemoveAll(dir); err != nil {
-			return fmt.Errorf("failed to make dir at %s: %s", dir, err)
+			return fmt.Errorf("failed to remove dir at %s: %s", dir, err)
 		}
 	}
 
 	return nil
+}
+
+func EncodeFile(path string, obj interface{}) error {
+	f, err := os.Create(path)
+	if err != nil {
+		return fmt.Errorf("failed to write at %s: %s", path, err)
+	}
+	defer f.Close()
+
+	return json.NewEncoder(f).Encode(obj)
+}
+
+func DecodeFile(path string, obj interface{}) error {
+	f, err := os.Open(path)
+	if err != nil {
+		return fmt.Errorf("failed to read at %s: %s", path, err)
+	}
+	defer f.Close()
+
+	return json.NewDecoder(f).Decode(obj)
 }

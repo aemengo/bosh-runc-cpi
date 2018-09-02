@@ -6,6 +6,9 @@ import (
 	"github.com/aemengo/bosh-runc-cpi/pb"
 	"io/ioutil"
 	"path/filepath"
+	"github.com/opencontainers/runtime-spec/specs-go"
+	"github.com/aemengo/bosh-runc-cpi/utils"
+	"github.com/aemengo/bosh-runc-cpi/runc"
 )
 
 func (s *Service) DetachDisk(ctx context.Context, req *pb.DisksOpts) (*pb.Void, error) {
@@ -23,12 +26,13 @@ func (s *Service) DetachDisk(ctx context.Context, req *pb.DisksOpts) (*pb.Void, 
 			agentSettingsPath = filepath.Join(vmPath, "warden-cpi-agent-env.json")
 		)
 
-		spec, err := ioutil.ReadFile(specPath)
+		spec := &specs.Spec{}
+		err := utils.DecodeFile(specPath, spec)
 		if err != nil {
 			return nil, fmt.Errorf("failed to read spec file: %s", err)
 		}
 
-		spec = detachBindMount(spec, diskPath)
+		runc.Apply(spec, runc.WithoutMount(diskPath))
 
 		agentSettings, err := ioutil.ReadFile(agentSettingsPath)
 		if err != nil {
@@ -39,7 +43,7 @@ func (s *Service) DetachDisk(ctx context.Context, req *pb.DisksOpts) (*pb.Void, 
 
 		s.runc.DeleteContainer(vmID)
 
-		if err := ioutil.WriteFile(specPath, spec, 0666); err != nil {
+		if err := utils.EncodeFile(specPath, spec); err != nil {
 			return nil, fmt.Errorf("failed to write spec file: %s", err)
 		}
 
