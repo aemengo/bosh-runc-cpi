@@ -2,6 +2,7 @@ package runc
 
 import (
 	"github.com/opencontainers/runtime-spec/specs-go"
+	"strings"
 )
 
 func DefaultSpec() *specs.Spec {
@@ -19,7 +20,11 @@ func DefaultSpec() *specs.Spec {
 			},
 			Args: []string{
 				"bash", "-c",
-				"umount /var/vcap/data/root_log; chmod 0777 /var/vcap/data; exec env -i /usr/sbin/runsvdir-start",
+				strings.Join([]string{
+					"umount /var/vcap/data/root_log",
+					"umount /var/vcap/data/sys/run",
+					"exec env -i /usr/sbin/runsvdir-start",
+				}, "; "),
 			},
 			Env: []string{
 				"PATH=/var/vcap/bosh/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
@@ -47,29 +52,13 @@ func DefaultSpec() *specs.Spec {
 				{Type: specs.IPCNamespace},
 				{Type: specs.MountNamespace},
 			},
-			MaskedPaths: []string{
-				"/proc/kcore",
-				"/proc/latency_stats",
-				"/proc/timer_list",
-				"/proc/timer_stats",
-				"/proc/sched_debug",
-				"/sys/firmware",
-				"/proc/scsi",
-			},
-			ReadonlyPaths: []string{
-				"/proc/asound",
-				"/proc/bus",
-				"/proc/fs",
-				"/proc/irq",
-				"/proc/sys",
-				"/proc/sysrq-trigger",
-			},
 		},
 		Mounts: []specs.Mount{
 			{
 				Destination: "/proc",
 				Source:      "proc",
 				Type:        "proc",
+				Options:     []string{"nosuid", "noexec", "nodev"},
 			},
 			{
 				Destination: "/dev",
@@ -131,7 +120,7 @@ func AppendMounts(mounts []specs.Mount) SpecOption {
 	}
 }
 
-func WithoutMount(mountSrc string) SpecOption {
+func RemoveMount(mountSrc string) SpecOption {
 	return func(spec *specs.Spec) {
 		var mts []specs.Mount
 

@@ -20,6 +20,7 @@ func (s *Service) CreateVM(ctx context.Context, req *pb.CreateVMOpts) (*pb.TextP
 		rootFsPath        = filepath.Join(vmPath, "rootfs")
 		workDirPath       = filepath.Join(vmPath, "workdir")
 		upperDirPath      = filepath.Join(vmPath, "upperdir")
+		dataPath          = filepath.Join(vmPath, "data")
 		specPath          = filepath.Join(vmPath, "config.json")
 		pidPath           = filepath.Join(vmPath, "pid")
 		agentSettingsPath = filepath.Join(vmPath, "warden-cpi-agent-env.json")
@@ -28,7 +29,7 @@ func (s *Service) CreateVM(ctx context.Context, req *pb.CreateVMOpts) (*pb.TextP
 		spec              = runc.DefaultSpec()
 	)
 
-	err := utils.MkdirAll(rootFsPath, workDirPath, upperDirPath)
+	err := utils.MkdirAll(rootFsPath, workDirPath, upperDirPath, dataPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create vm directory: %s", err)
 	}
@@ -57,11 +58,19 @@ func (s *Service) CreateVM(ctx context.Context, req *pb.CreateVMOpts) (*pb.TextP
 			},
 		},
 		{
+			Destination: "/var/vcap/data",
+			Source:      dataPath,
+			Type:        "bind",
+			Options: []string{
+				"bind",
+				"rw",
+			},
+		},
+		{
 			Destination: "/var/vcap/bosh/warden-cpi-agent-env.json",
 			Source:      agentSettingsPath,
 			Type:        "bind",
 			Options: []string{
-				"mode=666",
 				"bind",
 			},
 		},

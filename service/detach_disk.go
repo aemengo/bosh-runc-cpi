@@ -32,7 +32,7 @@ func (s *Service) DetachDisk(ctx context.Context, req *pb.DisksOpts) (*pb.Void, 
 			return nil, fmt.Errorf("failed to read spec file: %s", err)
 		}
 
-		runc.Apply(spec, runc.WithoutMount(diskPath))
+		runc.Apply(spec, runc.RemoveMount(diskPath))
 
 		agentSettings, err := ioutil.ReadFile(agentSettingsPath)
 		if err != nil {

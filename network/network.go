@@ -26,11 +26,11 @@ func New() (*Network, error) {
 	return &Network{}, nil
 }
 
-func initBridge() (*net.Interface, error) {
-	// bridge initialization code adapted from github.com/genuinetools/netns
-	// https://github.com/genuinetools/netns/blob/9d3c8173664af5f3d412ebdd7c66c013a965af4b/bridge/bridge.go#L34-L92
-	// iptables invocation removed for a bare linuxkit VM environment
+// bridge initialization code adapted from github.com/genuinetools/netns
+// https://github.com/genuinetools/netns/blob/9d3c8173664af5f3d412ebdd7c66c013a965af4b/bridge/bridge.go#L34-L92
+// iptables invocation removed for a bare linuxkit VM environment
 
+func initBridge() (*net.Interface, error) {
 	var (
 		bridgeName = "netns0"
 		bridgeAddr = "10.0.0.1/16"
@@ -105,6 +105,10 @@ func (n *Network) InstallVirtualEthernetPair(vEthPair *netlink.Veth, namespacePi
 
 	return nil
 }
+
+// namespaced net interface code adapted from github.com/genuinetools/netns
+// https://github.com/genuinetools/netns/blob/e9178c45b0c7fe0c269f3de4ca1b35953d45f1f9/network/create.go
+// parameters adapted for a bosh ecosystem use-case
 
 func (n *Network) ConfigurePeerInterface(name string, namespacePid int, addr *netlink.Addr, gatewayIP string) error {
 	runtime.LockOSThread()
