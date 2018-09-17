@@ -14,7 +14,6 @@ service CPID {
   rpc CreateVM (CreateVMOpts) returns (TextParcel);
   rpc DeleteVM (TextParcel) returns (Void);
   rpc HasVM (TextParcel) returns (TruthParcel);
-  rpc ShellExec(TextParcel) returns (TextParcel);
 }
 
 message CreateVMOpts {
