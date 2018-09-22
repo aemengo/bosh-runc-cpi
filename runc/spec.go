@@ -58,7 +58,7 @@ func DefaultSpec() *specs.Spec {
 				Destination: "/proc",
 				Source:      "proc",
 				Type:        "proc",
-				Options:     []string{"nosuid", "noexec", "nodev"},
+				Options:     []string{"nosuid", "noexec", "nodev", "relatime"},
 			},
 			{
 				Destination: "/dev",
@@ -70,25 +70,13 @@ func DefaultSpec() *specs.Spec {
 				Destination: "/dev/pts",
 				Source:      "devpts",
 				Type:        "devpts",
-				Options:     []string{"nosuid", "noexec", "newinstance", "ptmxmode=0666", "mode=0620", "gid=5"},
-			},
-			{
-				Destination: "/dev/shm",
-				Source:      "shm",
-				Type:        "tmpfs",
-				Options:     []string{"nosuid", "noexec", "nodev", "mode=1777", "size=65536k"},
-			},
-			{
-				Destination: "/dev/mqueue",
-				Source:      "mqueue",
-				Type:        "mqueue",
-				Options:     []string{"nosuid", "noexec", "nodev"},
+				Options:     []string{"nosuid", "noexec", "newinstance", "ptmxmode=0666", "mode=0620"},
 			},
 			{
 				Destination: "/sys",
 				Source:      "sysfs",
 				Type:        "sysfs",
-				Options:     []string{"nosuid", "noexec", "nodev", "ro"},
+				Options:     []string{"nosuid", "noexec", "nodev"},
 			},
 			{
 				Destination: "/sys/fs/cgroup",
