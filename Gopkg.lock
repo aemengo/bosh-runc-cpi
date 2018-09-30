@@ -43,8 +43,6 @@
   packages = [
     ".",
     "format",
-    "gbytes",
-    "gexec",
     "internal/assertion",
     "internal/asyncassertion",
     "internal/oraclematcher",
@@ -97,9 +95,7 @@
     "http/httpguts",
     "http2",
     "http2/hpack",
-    "idna",
-    "internal/timeseries",
-    "trace"
+    "idna"
   ]
   revision = "afe8f62b1d6bbd81f31868121a50b06d8188e1f9"
 
@@ -189,6 +185,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "463711cdd4a83da8c8b4ef898234572a3b80f9de72d315fbfb66b6b6b4dd3dbc"
+  inputs-digest = "fcd6506d9203bcbe89efdab67941bcb8c63ab2adc237f90178e2f2ddcf4b9242"
   solver-name = "gps-cdcl"
   solver-version = 1
