@@ -14,13 +14,13 @@ import (
 //go:generate protoc -I ../pb --go_out=plugins=grpc:../pb ../pb/messages.proto
 
 type Service struct {
-	config  cfg.Config
+	config  cfg.ServerConfig
 	logger  *log.Logger
 	runc    *rc.Runc
 	network *nt.Network
 }
 
-func New(config cfg.Config, runc *rc.Runc, network *nt.Network, logger *log.Logger) *Service {
+func New(config cfg.ServerConfig, runc *rc.Runc, network *nt.Network, logger *log.Logger) *Service {
 	return &Service{
 		config:  config,
 		runc:    runc,

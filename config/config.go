@@ -6,15 +6,22 @@ import (
 	"github.com/aemengo/bosh-runc-cpi/utils"
 	"gopkg.in/yaml.v2"
 	"os"
+	"path/filepath"
 )
 
 type Config struct {
-	StemcellDir    string `yaml:"stemcell_dir"`
-	DiskDir        string `yaml:"disk_dir"`
-	VMDir          string `yaml:"vm_dir"`
 	NetworkType    string `yaml:"network_type"`
 	NetworkAddress string `yaml:"address"`
 	Agent          Agent  `yaml:"agent"`
+}
+
+type ServerConfig struct {
+	NetworkType    string `yaml:"network_type"`
+	NetworkAddress string `yaml:"address"`
+	WorkDir        string `yaml:"work_dir"`
+	StemcellDir    string `yaml:"stemcell_dir"`
+	DiskDir        string `yaml:"disk_dir"`
+	VMDir          string `yaml:"vm_dir"`
 }
 
 type Agent struct {
@@ -45,6 +52,38 @@ func New(configPath string) (Config, error) {
 		return Config{}, fmt.Errorf("failed to decode yaml config at path %s: %s", configPath, err)
 	}
 
+	return config, nil
+}
+
+func NewServerConfig(configPath string) (ServerConfig, error) {
+	if !utils.Exists(configPath) {
+		return ServerConfig{}, errors.New("config does not exist at path " + configPath)
+	}
+
+	f, err := os.Open(configPath)
+	if err != nil {
+		return ServerConfig{}, err
+	}
+	defer f.Close()
+
+	var input struct {
+		Workdir        string `yaml:"work_dir"`
+		NetworkType    string `yaml:"network_type"`
+		NetworkAddress string `yaml:"address"`
+	}
+
+	err = yaml.NewDecoder(f).Decode(&input)
+	if err != nil {
+		return ServerConfig{}, fmt.Errorf("failed to decode yaml config at path %s: %s", configPath, err)
+	}
+
+	var config ServerConfig
+	config.NetworkType = input.NetworkType
+	config.NetworkAddress = input.NetworkAddress
+	config.VMDir = input.Workdir
+	config.StemcellDir = filepath.Join(input.Workdir, "stemcells")
+	config.DiskDir = filepath.Join(input.Workdir, "disks")
+	config.VMDir = filepath.Join(input.Workdir, "vms")
 	return config, nil
 }
 

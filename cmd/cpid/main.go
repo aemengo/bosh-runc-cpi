@@ -24,7 +24,7 @@ func main() {
 		logger.Fatalf("[USAGE] %s <config-path>", os.Args[0])
 	}
 
-	config, err := cfg.New(os.Args[1])
+	config, err := cfg.NewServerConfig(os.Args[1])
 	expectNoError(err)
 	expectNoError(os.MkdirAll(config.VMDir, os.ModePerm))
 	expectNoError(os.MkdirAll(config.StemcellDir, os.ModePerm))
@@ -49,7 +49,7 @@ func main() {
 	expectNoError(err)
 }
 
-func prepareUnixSocket(config cfg.Config) error {
+func prepareUnixSocket(config cfg.ServerConfig) error {
 	if config.NetworkType != "unix" {
 		return nil
 	}
