@@ -25,6 +25,16 @@ func Ping(ctx context.Context, target string) error {
 	return nil
 }
 
+func Prune(ctx context.Context, target string) error {
+	client, err := newClient(target)
+	if err != nil {
+		return err
+	}
+
+	_, err = client.Prune(ctx, &pb.Void{})
+	return err
+}
+
 func newClient(target string) (pb.CPIDClient, error) {
 	conn, err := grpc.Dial(target, grpc.WithInsecure())
 	if err != nil {

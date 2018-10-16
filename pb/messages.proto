@@ -4,6 +4,8 @@ package pb;
 
 service CPID {
   rpc Ping (Void) returns (TextParcel);
+  rpc Prune (Void) returns (Void);
+
   rpc CreateStemcell (stream DataParcel) returns (TextParcel);
   rpc DeleteStemcell (TextParcel) returns (Void);
   rpc DeleteDisk (TextParcel) returns (Void);

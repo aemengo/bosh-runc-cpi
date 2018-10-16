@@ -80,7 +80,7 @@ func NewServerConfig(configPath string) (ServerConfig, error) {
 	var config ServerConfig
 	config.NetworkType = input.NetworkType
 	config.NetworkAddress = input.NetworkAddress
-	config.VMDir = input.Workdir
+	config.WorkDir = input.Workdir
 	config.StemcellDir = filepath.Join(input.Workdir, "stemcells")
 	config.DiskDir = filepath.Join(input.Workdir, "disks")
 	config.VMDir = filepath.Join(input.Workdir, "vms")
