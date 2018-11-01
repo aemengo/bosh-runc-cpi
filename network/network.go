@@ -5,6 +5,7 @@ import (
 	"github.com/vishvananda/netlink"
 	"github.com/vishvananda/netns"
 	"net"
+	"regexp"
 	"runtime"
 	"strings"
 )
@@ -13,8 +14,16 @@ type Network struct {
 	bridge *net.Interface
 }
 
-func New() (*Network, error) {
-	br, err := initBridge()
+func New(cidr string) (*Network, error) {
+	regex := regexp.MustCompile(`^(\d+\.\d+\.\d+\.)\d+(\/\d+)$`)
+	matches := regex.FindStringSubmatch(cidr)
+	if len(matches) != 3 {
+		return nil, fmt.Errorf("CIDR value of %q does not match the expected format, please consult the documentation", cidr)
+	}
+
+	bridgeAddr := matches[1] + "1" + matches[2]
+
+	br, err := initBridge(bridgeAddr)
 	if err != nil {
 		return nil, err
 	}
@@ -30,10 +39,9 @@ func New() (*Network, error) {
 // https://github.com/genuinetools/netns/blob/9d3c8173664af5f3d412ebdd7c66c013a965af4b/bridge/bridge.go#L34-L92
 // iptables invocation removed for a bare linuxkit VM environment
 
-func initBridge() (*net.Interface, error) {
+func initBridge(bridgeAddr string) (*net.Interface, error) {
 	var (
 		bridgeName = "netns0"
-		bridgeAddr = "10.0.0.1/16"
 		brigdgeMTU = 1500
 	)
 

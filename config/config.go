@@ -16,6 +16,7 @@ type Config struct {
 }
 
 type ServerConfig struct {
+	CIDR           string `yaml:"cidr"`
 	NetworkType    string `yaml:"network_type"`
 	NetworkAddress string `yaml:"address"`
 	WorkDir        string `yaml:"work_dir"`
@@ -70,6 +71,7 @@ func NewServerConfig(configPath string) (ServerConfig, error) {
 		Workdir        string `yaml:"work_dir"`
 		NetworkType    string `yaml:"network_type"`
 		NetworkAddress string `yaml:"address"`
+		CIDR           string `yaml:"cidr"`
 	}
 
 	err = yaml.NewDecoder(f).Decode(&input)
@@ -81,6 +83,7 @@ func NewServerConfig(configPath string) (ServerConfig, error) {
 	config.NetworkType = input.NetworkType
 	config.NetworkAddress = input.NetworkAddress
 	config.WorkDir = input.Workdir
+	config.CIDR = input.CIDR
 	config.StemcellDir = filepath.Join(input.Workdir, "stemcells")
 	config.DiskDir = filepath.Join(input.Workdir, "disks")
 	config.VMDir = filepath.Join(input.Workdir, "vms")

@@ -31,7 +31,7 @@ func main() {
 	expectNoError(os.MkdirAll(config.DiskDir, os.ModePerm))
 	expectNoError(prepareUnixSocket(config))
 
-	network, err := nt.New()
+	network, err := nt.New(config.CIDR)
 	expectNoError(err)
 
 	lis, err := net.Listen(config.NetworkType, config.NetworkAddress)

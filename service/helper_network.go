@@ -3,6 +3,7 @@ package service
 import (
 	"github.com/vishvananda/netlink"
 	"io/ioutil"
+	"regexp"
 	"strconv"
 )
 
@@ -25,7 +26,10 @@ func (s *Service) configureNetworking(vmPath string, pidPath string, ip string, 
 		return err
 	}
 
-	addr, err := netlink.ParseAddr(ip + "/16")
+	regex := regexp.MustCompile(`^\d+\.\d+\.\d+\.\d+(\/\d+)$`)
+	matches := regex.FindStringSubmatch(s.config.CIDR)
+
+	addr, err := netlink.ParseAddr(ip + matches[1])
 	if err != nil {
 		tearDownNetworking(vEthPair.Name)
 		return err
