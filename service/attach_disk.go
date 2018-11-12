@@ -21,6 +21,11 @@ func (s *Service) AttachDisk(ctx context.Context, req *pb.DisksOpts) (*pb.Void, 
 		agentSettingsPath = filepath.Join(vmPath, "warden-cpi-agent-env.json")
 	)
 
+	// Exit early with useful error message if disk doesn't exist
+	if req.DiskID == "" || !utils.Exists(diskPath) {
+		return nil, fmt.Errorf("no persistent disk found with id: %q to attach", req.DiskID)
+	}
+
 	spec := &specs.Spec{}
 	err := utils.DecodeFile(specPath, spec)
 	if err != nil {

@@ -29,6 +29,11 @@ func (s *Service) CreateVM(ctx context.Context, req *pb.CreateVMOpts) (*pb.TextP
 		spec              = runc.DefaultSpec()
 	)
 
+	// Exit early with useful error message if disk doesn't exist
+	if req.DiskID != "" && !utils.Exists(filepath.Join(s.config.DiskDir, req.DiskID)) {
+		return nil, fmt.Errorf("no persistent disk found with id: %q to attach", req.DiskID)
+	}
+
 	err := utils.MkdirAll(rootFsPath, workDirPath, upperDirPath, dataPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create vm directory: %s", err)
