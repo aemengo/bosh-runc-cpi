@@ -21,6 +21,11 @@ func DefaultSpec() *specs.Spec {
 			Args: []string{
 				"bash", "-c",
 				strings.Join([]string{
+					// remove all pids in the run dir
+					// accounts for bad state after
+					// attaching or detaching disks
+					"rm -f /var/run/*.pid",
+
 					"umount /var/vcap/data/root_log",
 					"umount /var/vcap/data/sys/run",
 					"exec env -i /usr/sbin/runsvdir-start",
