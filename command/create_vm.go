@@ -6,6 +6,8 @@ import (
 	"github.com/aemengo/bosh-runc-cpi/bosh"
 	cfg "github.com/aemengo/bosh-runc-cpi/config"
 	"github.com/aemengo/bosh-runc-cpi/pb"
+	"github.com/aemengo/bosh-runc-cpi/utils"
+	"time"
 )
 
 type createVM struct {
@@ -47,12 +49,18 @@ func (c *createVM) Run() bosh.Response {
 	}
 
 	agentSettings := bosh.ConvertAgentSettings(c.arguments, c.config)
+	var id *pb.TextParcel
 
-	id, err := c.CreateVM(c.ctx, &pb.CreateVMOpts{
-		StemcellID: stemcellID,
-		AgentSettings: agentSettings,
-		DiskID: diskID,
+	err := utils.Do(5, 5*time.Second, func() error {
+		var err error
+		id, err = c.CreateVM(c.ctx, &pb.CreateVMOpts{
+			StemcellID:    stemcellID,
+			AgentSettings: agentSettings,
+			DiskID:        diskID,
+		})
+		return err
 	})
+
 	if err != nil {
 		return bosh.CloudError(c.logPrefix, err)
 	}

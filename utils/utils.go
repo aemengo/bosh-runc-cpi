@@ -1,25 +1,33 @@
 package utils
 
 import (
+	"encoding/json"
+	"fmt"
 	"os"
 	"os/exec"
-	"fmt"
 	"time"
-	"encoding/json"
 )
 
 func Do(attempts int, delay time.Duration, task func() error) (err error) {
-	ticker := time.NewTicker(delay)
+	var (
+		currentAttempt = 0
+		maxAttempts    = attempts
+		ticker         = time.NewTicker(delay)
+	)
 
 	for {
 		select {
 		case <-ticker.C:
+			currentAttempt++
+			attempts--
+
 			err = task()
 			if err == nil {
 				return
 			}
 
-			attempts--
+			err = fmt.Errorf("[%d/%d] %s", currentAttempt, maxAttempts, err)
+
 			if attempts == 0 {
 				return
 			}
@@ -27,7 +35,7 @@ func Do(attempts int, delay time.Duration, task func() error) (err error) {
 	}
 }
 
-func Exists(path string) bool  {
+func Exists(path string) bool {
 	_, err := os.Stat(path)
 	if os.IsNotExist(err) {
 		return false
