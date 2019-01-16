@@ -19,7 +19,7 @@ func (s *Service) CreateStemcell(stream pb.CPID_CreateStemcellServer) error {
 
 	f, err := os.Create(tarPath)
 	if err != nil {
-		return fmt.Errorf("failed to create stemcell at path: %s: %s "+destPath, err)
+		return fmt.Errorf("failed to create stemcell at path: %s: %s ", tarPath, err)
 	}
 	defer f.Close()
 	defer os.RemoveAll(tarPath)

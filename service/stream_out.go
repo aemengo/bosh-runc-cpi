@@ -3,13 +3,20 @@ package service
 import (
 	"fmt"
 	"github.com/aemengo/bosh-runc-cpi/pb"
+	"github.com/satori/go.uuid"
 	"io"
 	"os"
 	"os/exec"
+	"path/filepath"
 )
 
 func (s *Service) StreamOut(path *pb.TextParcel, stream pb.CPID_StreamOutServer) error {
-	tarPath := path.Value+".tgz"
+	var (
+		id       = uuid.NewV4().String()
+		destPath = filepath.Join(s.config.TempDir, id)
+		tarPath  = destPath + ".tgz"
+	)
+
 	err := exec.Command("tar", "-czf", tarPath, path.Value).Run()
 	if err != nil {
 		return fmt.Errorf("cannot create archive at %q from %q: %s", tarPath, path.Value, err)

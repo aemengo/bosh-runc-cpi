@@ -29,6 +29,7 @@ func main() {
 	expectNoError(os.MkdirAll(config.VMDir, os.ModePerm))
 	expectNoError(os.MkdirAll(config.StemcellDir, os.ModePerm))
 	expectNoError(os.MkdirAll(config.DiskDir, os.ModePerm))
+	expectNoError(os.MkdirAll(config.TempDir, os.ModePerm))
 	expectNoError(prepareUnixSocket(config))
 
 	network, err := nt.New(config.CIDR)

@@ -23,6 +23,7 @@ type ServerConfig struct {
 	StemcellDir    string `yaml:"stemcell_dir"`
 	DiskDir        string `yaml:"disk_dir"`
 	VMDir          string `yaml:"vm_dir"`
+	TempDir        string `yaml:"temp_dir"`
 }
 
 type Agent struct {
@@ -87,6 +88,7 @@ func NewServerConfig(configPath string) (ServerConfig, error) {
 	config.StemcellDir = filepath.Join(input.Workdir, "stemcells")
 	config.DiskDir = filepath.Join(input.Workdir, "disks")
 	config.VMDir = filepath.Join(input.Workdir, "vms")
+	config.TempDir = filepath.Join(input.Workdir, "tmp")
 	return config, nil
 }
 

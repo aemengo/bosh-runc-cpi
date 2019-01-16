@@ -18,6 +18,7 @@ service CPID {
   rpc HasVM (TextParcel) returns (TruthParcel);
 
   rpc StreamOut(TextParcel) returns (stream DataParcel);
+  rpc StreamIn(stream DataParcel) returns (Void);
 }
 
 message CreateVMOpts {

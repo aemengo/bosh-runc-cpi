@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/aemengo/bosh-runc-cpi/pb"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 	"io"
 	"os"
 )
@@ -34,6 +35,48 @@ func Prune(ctx context.Context, target string) error {
 	}
 
 	_, err = client.Prune(ctx, &pb.Void{})
+	return err
+}
+
+func StreamIn(ctx context.Context, target, src, dest string) error {
+	client, err := newClient(target)
+	if err != nil {
+		return err
+	}
+
+	f, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	md := metadata.New(map[string]string{"destination_dir": dest})
+
+	stream, err := client.StreamIn(metadata.NewOutgoingContext(ctx, md))
+	if err != nil {
+		return err
+	}
+
+	for {
+		chunk := make([]byte, 64 * 1024)
+		n, err := f.Read(chunk)
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			return err
+		}
+
+		if n < len(chunk) {
+			chunk = chunk[:n]
+		}
+
+		err = stream.Send(&pb.DataParcel{Value: chunk})
+		if err != nil {
+			return err
+		}
+	}
+
+	_, err = stream.CloseAndRecv()
 	return err
 }
 
