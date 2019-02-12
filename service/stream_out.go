@@ -17,7 +17,7 @@ func (s *Service) StreamOut(path *pb.TextParcel, stream pb.CPID_StreamOutServer)
 		tarPath  = destPath + ".tgz"
 	)
 
-	err := exec.Command("tar", "-czf", tarPath, path.Value).Run()
+	err := exec.Command("tar", buildCompressArguments(tarPath, path.Value)...).Run()
 	if err != nil {
 		return fmt.Errorf("cannot create archive at %q from %q: %s", tarPath, path.Value, err)
 	}
@@ -30,7 +30,7 @@ func (s *Service) StreamOut(path *pb.TextParcel, stream pb.CPID_StreamOutServer)
 	defer f.Close()
 
 	for {
-		chunk := make([]byte, 64 * 1024)
+		chunk := make([]byte, 64*1024)
 		n, err := f.Read(chunk)
 		if err == io.EOF {
 			break
@@ -49,4 +49,24 @@ func (s *Service) StreamOut(path *pb.TextParcel, stream pb.CPID_StreamOutServer)
 	}
 
 	return nil
+}
+
+func buildCompressArguments(dest, src string) []string {
+	doesPigzExist := func() bool {
+		_, err := exec.LookPath("pigz")
+		return err == nil
+	}
+
+	args := []string{
+		"-cf", dest,
+	}
+
+	if doesPigzExist() {
+		args = append(args, "--use-compress-program=pigz")
+	} else {
+		args = append(args, "--use-compress-program=gzip")
+	}
+
+	args = append(args, src)
+	return args
 }
